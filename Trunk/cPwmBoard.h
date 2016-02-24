@@ -1,6 +1,7 @@
 #include <iostream>
 #include <wiringPiI2C.h>
 
+//REGISTERS
 #define PWM_ADDRESS 0x40
 
 #define PWM_0 	0x06
@@ -20,12 +21,33 @@
 #define PWM_14 	0x3E
 #define PWM_15 	0x42
 
+#define PWM_ALL_ON 	0xFA
+#define PWM_ALL_OFF 0xFC
+
+#define MODE1	0x00
+#define MODE2	0x01
+
+#define OPEN_DRAIN 	0
+#define TOTEM_POLE 	1
+
+#define PRESCALE_REG	0xFE
+#define PRESCALE_MAX 	0xFF
+#define PRESCALE_MIN 	0x03
+#define PRESCALE_MAXF	1526	//Hz
+#define PRESCALE_MINF	24		//Hz
+//REGISTERS
+
 class cPwmBoard
 {
 public:
 	cPwmBoard();
 	int setup();
-	int setPWM(int reg, float duty);
+	int setPwm(int reg, float duty);
+	int setPwmAll(float duty);
+	int setDrive(int mode);
+	int setPreScaler(int val);
+	int setFreq(int freq);
+
 private:
 	int pwmFd;
 };
