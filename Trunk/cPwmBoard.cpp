@@ -22,7 +22,7 @@ int cPwmBoard::setPWM(int reg, float duty)
     int val = (40.96 * duty)-1;  //0~4095 values in PWM
     int high = val/256;    //High nibble(4bit)
     int low = val-high;      //Low byte
-    if(setup <0)
+    if(setup() <0)
     {
         std::cout <<  "Attempted to write to non-initalised PWM board";
         return -1;
