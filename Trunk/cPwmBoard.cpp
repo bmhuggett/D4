@@ -3,7 +3,7 @@
 cPwmBoard::cPwmBoard()
 {
     pwmFd = -1;
-    if (setup() == -1)
+    if (setup() <0)
     {
         std::cout << "Failed to initialise PWM board";
     }
@@ -11,15 +11,18 @@ cPwmBoard::cPwmBoard()
 
 int cPwmBoard::setup()
 {
-    return wiringPiI2CSetup(PWM_ADDRESS);
+
+    pwmFd = wiringPiI2CSetup(PWM_ADDRESS)
+    return pwmFd;
 }
+
 
 
 int cPwmBoard::setPwm(int reg, float duty)
 {
 
-    int val = 4096 * duty;  //4096 values in PWM
-    int high = val/256;    //High byte
+    int val = (40.96 * duty)-1;  //0~4095 values in PWM
+    int high = val/256;    //High nibble(4bit)
     int low = val-high;      //Low byte
     if(pwmFd == -1)
     {
