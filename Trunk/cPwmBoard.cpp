@@ -11,7 +11,7 @@ cPwmBoard::cPwmBoard()
 
 int cPwmBoard::setup()
 {
-    pwmFd = wiringPiI2CSetup(PWM_ADDRESS)
+    pwmFd = wiringPiI2CSetup(PWM_ADDRESS);
     return pwmFd;
 }
 
