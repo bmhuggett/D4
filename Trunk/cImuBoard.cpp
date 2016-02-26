@@ -3,7 +3,7 @@
 #include <wiringPiI2C.h>
 #include <wiringPi.h>
 #include "utils.h"
-#include <math.h>
+#include <cmath>
 #include <limits>
 
 cImuBoard* pImuPtr;
@@ -235,8 +235,8 @@ float cImuBoard::accelX()
 	std::cout<<"IMU accelX"<<std::endl;
 	#endif
 
-	float value = (float)accelXRaw() / (float)std::numeric_limits<int>::max(); //Get fraction through int range
-	return value*accelRange;
+	float value = (float)accelXRaw() / accelMul;
+	return value;
 }
 float cImuBoard::accelY()
 {
@@ -244,8 +244,8 @@ float cImuBoard::accelY()
 	std::cout<<"IMU accelY"<<std::endl;
 	#endif
 
-	float value = (float)accelYRaw() / (float)std::numeric_limits<int>::max(); //Get fraction through int range
-	return value*accelRange;
+	float value = (float)accelYRaw() / accelMul;
+	return value;
 }
 float cImuBoard::accelZ()
 {
@@ -253,8 +253,8 @@ float cImuBoard::accelZ()
 	std::cout<<"IMU accelZ"<<std::endl;
 	#endif
 
-	float value = (float)accelZRaw() / (float)std::numeric_limits<int>::max(); //Get fraction through int range
-	return value*accelRange;
+	float value = (float)accelZRaw() / accelMul;
+	return value;
 }
 
 float cImuBoard::temp()
@@ -267,14 +267,32 @@ float cImuBoard::gyroX()
 	std::cout<<"IMU gyroX"<<std::endl;
 	#endif
 
-	float value = (float)gyroXRaw() / (float)std::numeric_limits<int>::max(); //Get fraction through int range
-	return value*gyroRange;
+	float value = (float)gyroXRaw() / gyroMul;
+	return value;
+}
+float cImuBoard::gyroY()
+{
+	#ifdef DEBUG_IMU
+	std::cout<<"IMU gyroY"<<std::endl;
+	#endif
+
+	float value = (float)gyroYRaw() / gyroMul;
+	return value;
+}
+float cImuBoard::gyroZ()
+{
+	#ifdef DEBUG_IMU
+	std::cout<<"IMU gyroZ"<<std::endl;
+	#endif
+
+	float value = (float)gyroZRaw() / gyroMul;
+	return value;
 }
 
 int cImuBoard::setAccelRange(eAccelRange range)
 {
 	#ifdef DEBUG_IMU
-	std::cout<<"IMU setAccelRange"<<std::endl;
+	std::cout<<"IMU setaccelMul"<<std::endl;
 	#endif
 
 	int regval;
@@ -288,22 +306,22 @@ int cImuBoard::setAccelRange(eAccelRange range)
 		case RANGE_2:
 			regval = bitLow(3,regval);
 			regval = bitLow(4,regval);
-			accelRange = 2;
+			accelMul = 16384;
 			break;
 		case RANGE_4:
 			regval = bitHigh(3,regval);
 			regval = bitLow(4,regval);
-			accelRange = 4;
+			accelMul = 8192;
 			break;
 		case RANGE_8:
 			regval = bitLow(3,regval);
 			regval = bitHigh(4,regval);
-			accelRange = 8;
+			accelMul = 4096;
 			break;
 		case RANGE_16:
 			regval = bitHigh(3,regval);
 			regval = bitHigh(4,regval);
-			accelRange = 16;
+			accelMul = 2048;
 			break;
 	}
 	if(wiringPiI2CWriteReg8(imuFd,ACCEL_CONFIG,regval)<0)
@@ -316,7 +334,7 @@ int cImuBoard::setAccelRange(eAccelRange range)
 int cImuBoard::setGyroRange(eGyroRange range)
 {
 	#ifdef DEBUG_IMU
-	std::cout<<"IMU setGyroRange"<<std::endl;
+	std::cout<<"IMU setgyroMul"<<std::endl;
 	#endif
 
 	int regval;
@@ -330,22 +348,22 @@ int cImuBoard::setGyroRange(eGyroRange range)
 	case RANGE_250:
 		regval = bitLow(3, regval);
 		regval = bitLow(4, regval);
-		gyroRange = 250;
+		gyroMul = 131;
 		break;
 	case RANGE_500:
 		regval = bitHigh(3, regval);
 		regval = bitLow(4, regval);
-		gyroRange = 500;
+		gyroMul = 65.5;
 		break;
 	case RANGE_1000:
 		regval = bitLow(3, regval);
 		regval = bitHigh(4, regval);
-		gyroRange = 1000;
+		gyroMul = 32.8;
 		break;
 	case RANGE_2000:
 		regval = bitHigh(3, regval);
 		regval = bitHigh(4, regval);
-		gyroRange = 2000;
+		gyroMul = 16.4;
 		break;
 	}
 	if (wiringPiI2CWriteReg8(imuFd, GYRO_CONFIG, regval)<0)
@@ -383,10 +401,16 @@ int cImuBoard::beginLoop()
 
 void *imuLoop(void* dummy)
 {
-	/*
-	int lastTime = loopTime;
-	loopTime = micros();
-	int dt = loopTime - lastTime;
+	#ifdef DEBUG_IMU
+	std::cout<<"IMU threadLoop"<<std::endl;
+	#endif
+	std::cout<<"Threadloop"<<std::endl;
+	float pitchlocal = pImuPtr->pitch;
+
+	int lastTime = pImuPtr->loopTime;
+	pImuPtr->loopTime= micros();
+	int dt = pImuPtr->loopTime - lastTime;
+
 	int accelx, accely, accelz, gyrox, gyroy, gyroz;
 	accelx	= pImuPtr->accelX();
 	accely	= pImuPtr->accelY();
@@ -394,6 +418,17 @@ void *imuLoop(void* dummy)
 	gyrox	= pImuPtr->gyroX();
 	gyroy = pImuPtr->gyroY();
 	gyroz = pImuPtr->gyroZ();
-	*/
+
+	pitchlocal += gyrox*dt;
+
+	int forcemag = std::abs(accelx) + std::abs(accely) + std::abs(accely);
+	if ((forcemag > 0.5) && (forcemag < 2))
+	{
+		float pitchacc = atan2(accely,accelz) *180.0/M_PI;
+		pitchlocal = 0.98*pitchlocal + 0.02*pitchacc;
+	}
+	pImuPtr->pitch = pitchlocal;
+
+
 }
 

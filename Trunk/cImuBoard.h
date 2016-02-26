@@ -25,6 +25,7 @@
 #define USER_CONTROL	0x6A
 #define PWR_MGMT_1		0x6B
 #define WHO_AM_I		0x75
+#define M_PI 			3.14159265359	
 
 //#define DEBUG_IMU
 
@@ -64,8 +65,8 @@ public:
 
 
 	int loopTime;
-	float accelRange;
-	float gyroRange;
+	float accelMul;
+	float gyroMul;
 
 	float pitch;
 	float yaw;
