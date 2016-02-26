@@ -1,3 +1,8 @@
+/*	utils.cpp
+*	Author: George
+*	Description: Provides utility functions for register manipulation
+*/
+
 #include "utils.h"
 
 int combineRegSigned(int highbyte, int lowbyte)

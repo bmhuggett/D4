@@ -1,3 +1,8 @@
+/*	utils.h
+*	Author: George
+*	Description: Provides utility functions for register manipulation
+*/
+
 #ifndef UTILS_H
 #define UTILS_H
 

@@ -1,3 +1,8 @@
+/*	cImuBoard.cpp
+*	Author: George
+*	Description: Implements the class described in cImuBoard.h	
+*/
+
 #include "cImuBoard.h"
 #include <iostream>
 #include <wiringPiI2C.h>
@@ -45,9 +50,11 @@ cImuBoard::cImuBoard()
 		std::cout<<"IMU board setup failure"<<std::endl;
 	}
 	zero();
-	pImuPtr = this;
+	pImuPtr = this;	//Point the cImuBoard pointer here so the loop can use the
+					//	internal variables
 	setAccelRange(RANGE_2);
 	setGyroRange(RANGE_250);
+	wake();
 }
 
 int cImuBoard::setup()
@@ -65,6 +72,8 @@ int cImuBoard::wake()
 	#ifdef DEBUG_IMU
 	std::cout<<"IMU wake"<<std::endl;
 	#endif
+
+	//Write 0 to the Sleep bit in PWR_MGMT_1
 
 	int regval;
 	if (regval = wiringPiI2CReadReg8(imuFd,PWR_MGMT_1)<0)
@@ -326,6 +335,8 @@ int cImuBoard::setAccelRange(eAccelRange range)
 		std::cout<<"IMU board read failed | ACCEL_CONFIG"<<std::endl;
 		return -1;
 	}
+
+	//Translates ranges into bit patterns
 	switch (range)
 	{
 		case RANGE_2:
@@ -368,6 +379,8 @@ int cImuBoard::setGyroRange(eGyroRange range)
 		std::cout << "IMU board read failed | GYRO_CONFIG" << std::endl;
 		return -1;
 	}
+
+	//Translates ranges into bit patterns
 	switch (range)
 	{
 	case RANGE_250:
@@ -443,14 +456,15 @@ void *imuLoop(void* dummy)
 	pImuPtr->zero();
 	while(1)
 	{
-		float pitchlocal 	= 	pImuPtr->pitch;	//x
-		float rolllocal 	= 	pImuPtr->roll;	//y
-		float yawlocal		=	pImuPtr->yaw;	//z
+		float pitchlocal 	= 	pImuPtr->pitch;	//about x-axis
+		float rolllocal 	= 	pImuPtr->roll;	//about y-axis
+		float yawlocal		=	pImuPtr->yaw;	//about z-axis
 
 		int lastTime = pImuPtr->loopTime;
 		pImuPtr->loopTime= micros();
 		float dt = (float)(pImuPtr->loopTime - lastTime)*0.000001;
 
+		//Load in readings
 		float accelx, accely, accelz, gyrox, gyroy, gyroz;
 		accelx	= pImuPtr->accelX();
 		accely	= pImuPtr->accelY();
@@ -459,20 +473,25 @@ void *imuLoop(void* dummy)
 		gyroy = pImuPtr->gyroY();
 		gyroz = pImuPtr->gyroZ();
 
+		//Integrate dtheta/dt readings from gyro
 		pitchlocal 	+= gyrox*dt;
 		rolllocal 	+= gyroy*dt;
 		yawlocal	+= gyroz*dt;
 
+		//Make sure the force on the accelerometer is reasonably low, so the
+		//	gravity vector dominates
 		float forcemag = std::abs(accelx) + std::abs(accely) + std::abs(accelz);
 		if ((forcemag > 0.5) && (forcemag < 2))
 		{
-			//std::cout<<"It was a sensible value!"<<std::endl;
+			//Derive P/R from accelerometer values, and convert to degrees
 			float pitchacc 	= atan2(accely,accelz) *180.0/M_PI;
 			float rollacc	= atan2(accelx,accelz) *180.0/M_PI;
 
+			//Filter to incline towards the accelerometer value over time
 			pitchlocal 	= 0.98*pitchlocal + 0.02*pitchacc;
 			rolllocal	= 0.98*rolllocal + 0.02*rollacc;
 		}
+		//Push back PYR values
 		pImuPtr->pitch 	= pitchlocal;
 		pImuPtr->roll 	= rolllocal;
 		pImuPtr->yaw 	= yawlocal;
