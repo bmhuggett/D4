@@ -24,8 +24,8 @@
 
 #define USER_CONTROL	0x6A
 
-
-enum eAccelRange{TWO,FOUR,EIGHT,SIXTEEN};
+enum eAccelRange{RANGE_2,RANGE_4,RANGE_8,RANGE_16};
+enum eGyroRange	{RANGE_250, RANGE_500, RANGE_1000, RANGE_2000};
 
 class cImuBoard
 {
@@ -35,16 +35,32 @@ public:
 	int imuFd;
 
 	int setup();
-	int accelX();
-	int accelY();
-	int accelZ();
+	
+	int accelXRaw();
+	int accelYRaw();
+	int accelZRaw();
+	int tempRaw();
+	int gyroXRaw();
+	int gyroYRaw();
+	int gyroZRaw();
+
+	float accelX();
+	float accelY();
+	float accelZ();
 	int temp();
 	int gyroX();
 	int gyroY();
 	int gyroZ();
+
 	void zero();
 	int beginLoop();
 	int setAccelRange(eAccelRange range);
+	int setGyroRange(eGyroRange range);
+
+
+	int loopTime;
+	float accelRange;
+	float gyroRange
 
 	float pitch;
 	float yaw;
@@ -54,6 +70,5 @@ public:
 extern cImuBoard* pImuPtr;
 
 void *imuLoop (void *dummy);
-
 
 #endif
