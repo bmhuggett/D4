@@ -1,6 +1,13 @@
+/* RCtest.cpp
+ * Author: Ben
+ * Description: Test to output the pulse width on channel 1 of the RC receiver (Left/right on right stick).
+ */
+
 #include <iostream>
 #include <wiringPi.h>
- 
+
+using namespace std;
+
 #define LR_PIN 0
 
 void startstopLRtimer(void);
