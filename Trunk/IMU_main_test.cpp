@@ -8,6 +8,7 @@ int main()
 	cImuBoard IMUBOARD = cImuBoard();
 	//IMUBOARD.beginLoop();
 	IMUBOARD.wake();
+	IMUBOARD.zero();
 	std::cout<<"Exited wake"<<std::endl;
 	IMUBOARD.beginLoop();
 	delay(100);

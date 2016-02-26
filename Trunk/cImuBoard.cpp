@@ -404,31 +404,38 @@ void *imuLoop(void* dummy)
 	#ifdef DEBUG_IMU
 	std::cout<<"IMU threadLoop"<<std::endl;
 	#endif
-	std::cout<<"Threadloop"<<std::endl;
-	float pitchlocal = pImuPtr->pitch;
-
-	int lastTime = pImuPtr->loopTime;
-	pImuPtr->loopTime= micros();
-	int dt = pImuPtr->loopTime - lastTime;
-
-	int accelx, accely, accelz, gyrox, gyroy, gyroz;
-	accelx	= pImuPtr->accelX();
-	accely	= pImuPtr->accelY();
-	accelz	= pImuPtr->accelZ();
-	gyrox	= pImuPtr->gyroX();
-	gyroy = pImuPtr->gyroY();
-	gyroz = pImuPtr->gyroZ();
-
-	pitchlocal += gyrox*dt;
-
-	int forcemag = std::abs(accelx) + std::abs(accely) + std::abs(accely);
-	if ((forcemag > 0.5) && (forcemag < 2))
+	pImuPtr->zero();
+	while(1)
 	{
-		float pitchacc = atan2(accely,accelz) *180.0/M_PI;
-		pitchlocal = 0.98*pitchlocal + 0.02*pitchacc;
-	}
-	pImuPtr->pitch = pitchlocal;
+		float pitchlocal = pImuPtr->pitch;
+		float rolllocal = pImuPtr->roll;
 
+		int lastTime = pImuPtr->loopTime;
+		pImuPtr->loopTime= micros();
+		int dt = (float)(pImuPtr->loopTime - lastTime)*0.000001;
+
+		float accelx, accely, accelz, gyrox, gyroy, gyroz;
+		accelx	= pImuPtr->accelX();
+		accely	= pImuPtr->accelY();
+		accelz	= pImuPtr->accelZ();
+		gyrox	= pImuPtr->gyroX();
+		gyroy = pImuPtr->gyroY();
+		gyroz = pImuPtr->gyroZ();
+
+		pitchlocal += gyrox*dt;
+		rolllocal 
+		//std::cout<<"AccelX "<<accelx<<" AccelY "<<accely<<" AccelZ "<<accelz<<std::endl;
+		float forcemag = std::abs(accelx) + std::abs(accely) + std::abs(accelz);
+		//std::cout<<"forcemag is "<<forcemag<<std::endl;
+		if ((forcemag > 0.5) && (forcemag < 2))
+		{
+			//std::cout<<"It was a sensible value!"<<std::endl;
+			float pitchacc = atan2(accely,accelz) *180.0/M_PI;
+			pitchlocal = 0.98*pitchlocal + 0.02*pitchacc;
+		}
+		pImuPtr->pitch = pitchlocal;
+
+	}
 
 }
 
