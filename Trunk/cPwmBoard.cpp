@@ -11,16 +11,13 @@ cPwmBoard::cPwmBoard()
 
 int cPwmBoard::setup()
 {
-
     pwmFd = wiringPiI2CSetup(PWM_ADDRESS);
     return pwmFd;
 }
 
 
-
-int cPwmBoard::setPwm(int reg, float duty)
-{
-
+int cPwmBoard::setPWM(int reg, float duty)
+    {
     int val = (40.96 * duty)-1;  //0~4095 values in PWM
     int high = val/256;    //High nibble(4bit)
     int low = val-high;      //Low byte
