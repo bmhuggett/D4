@@ -23,6 +23,10 @@
 #define GYRO_ZOUT_L		0x48
 
 #define USER_CONTROL	0x6A
+#define PWR_MGMT_1		0x6B
+#define WHO_AM_I		0x75
+
+//#define DEBUG_IMU
 
 enum eAccelRange{RANGE_2,RANGE_4,RANGE_8,RANGE_16};
 enum eGyroRange	{RANGE_250, RANGE_500, RANGE_1000, RANGE_2000};
@@ -35,6 +39,7 @@ public:
 	int imuFd;
 
 	int setup();
+	int wake();
 	
 	int accelXRaw();
 	int accelYRaw();
@@ -47,10 +52,10 @@ public:
 	float accelX();
 	float accelY();
 	float accelZ();
-	int temp();
-	int gyroX();
-	int gyroY();
-	int gyroZ();
+	float temp();
+	float gyroX();
+	float gyroY();
+	float gyroZ();
 
 	void zero();
 	int beginLoop();
@@ -60,7 +65,7 @@ public:
 
 	int loopTime;
 	float accelRange;
-	float gyroRange
+	float gyroRange;
 
 	float pitch;
 	float yaw;
