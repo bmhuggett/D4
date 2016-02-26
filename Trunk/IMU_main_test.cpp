@@ -2,6 +2,7 @@
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 #include <iostream>
+#include <iomanip>
 
 int main()
 {
@@ -14,7 +15,8 @@ int main()
 	delay(100);
 	while(1)
 	{
-		std::cout<<"Pitch is "<<IMUBOARD.pitch<<std::endl;
+		std::cout<<"P|Y|R\t"<<std::setw(15)<<IMUBOARD.pitch<<"\t"
+		<<std::setw(15)<<IMUBOARD.yaw<<"\t"<<std::setw(15)<<IMUBOARD.roll<<"\t"<<std::endl;
 		//std::cout<<"WHO_AM_I gives "<<wiringPiI2CReadReg8(IMUBOARD.imuFd,0x75)<<std::endl;
 		//std::cout<<"gyroXRaw gives "<<IMUBOARD.gyroXRaw()<<std::endl;
 		//std::cout<<"gyroX gives "<<IMUBOARD.gyroX()<<std::endl;

@@ -6,6 +6,31 @@
 #include <cmath>
 #include <limits>
 
+#define IMU_ADDRESS 	0x68
+
+#define CONFIG 			0x1A
+#define GYRO_CONFIG		0x1B
+#define ACCEL_CONFIG	0x1C
+#define FIFO_EN			0x23
+#define ACCEL_XOUT_H 	0x3B
+#define ACCEL_XOUT_L	0x3C
+#define ACCEL_YOUT_H	0x3D
+#define ACCEL_YOUT_L	0x3E
+#define ACCEL_ZOUT_H	0x3F
+#define ACCEL_ZOUT_L	0x40
+#define TEMP_OUT_H		0x41
+#define TEMP_OUT_L		0x42
+#define GYRO_XOUT_H 	0x43
+#define GYRO_XOUT_L		0x44
+#define GYRO_YOUT_H		0x45
+#define GYRO_YOUT_L		0x46
+#define GYRO_ZOUT_H		0x47
+#define GYRO_ZOUT_L		0x48
+
+#define USER_CONTROL	0x6A
+#define PWR_MGMT_1		0x6B
+#define WHO_AM_I		0x75
+
 cImuBoard* pImuPtr;
 
 cImuBoard::cImuBoard()
@@ -401,18 +426,30 @@ int cImuBoard::beginLoop()
 
 void *imuLoop(void* dummy)
 {
+
+	// The technique for the complementary filter design in this
+	// loop is from Pieter-Jan Van de Maele, of Pieter-Jan.com.
+	// His primer on this topic can be found at:
+	//
+	//	http://www.pieter-jan.com/node/11
+	//
+	// Details are different because of the different platform,
+	// but the technique is identical.
+
+
 	#ifdef DEBUG_IMU
 	std::cout<<"IMU threadLoop"<<std::endl;
 	#endif
 	pImuPtr->zero();
 	while(1)
 	{
-		float pitchlocal = pImuPtr->pitch;
-		float rolllocal = pImuPtr->roll;
+		float pitchlocal 	= 	pImuPtr->pitch;	//x
+		float rolllocal 	= 	pImuPtr->roll;	//y
+		float yawlocal		=	pImuPtr->yaw;	//z
 
 		int lastTime = pImuPtr->loopTime;
 		pImuPtr->loopTime= micros();
-		int dt = (float)(pImuPtr->loopTime - lastTime)*0.000001;
+		float dt = (float)(pImuPtr->loopTime - lastTime)*0.000001;
 
 		float accelx, accely, accelz, gyrox, gyroy, gyroz;
 		accelx	= pImuPtr->accelX();
@@ -422,18 +459,23 @@ void *imuLoop(void* dummy)
 		gyroy = pImuPtr->gyroY();
 		gyroz = pImuPtr->gyroZ();
 
-		pitchlocal += gyrox*dt;
-		rolllocal 
-		//std::cout<<"AccelX "<<accelx<<" AccelY "<<accely<<" AccelZ "<<accelz<<std::endl;
+		pitchlocal 	+= gyrox*dt;
+		rolllocal 	+= gyroy*dt;
+		yawlocal	+= gyroz*dt;
+
 		float forcemag = std::abs(accelx) + std::abs(accely) + std::abs(accelz);
-		//std::cout<<"forcemag is "<<forcemag<<std::endl;
 		if ((forcemag > 0.5) && (forcemag < 2))
 		{
 			//std::cout<<"It was a sensible value!"<<std::endl;
-			float pitchacc = atan2(accely,accelz) *180.0/M_PI;
-			pitchlocal = 0.98*pitchlocal + 0.02*pitchacc;
+			float pitchacc 	= atan2(accely,accelz) *180.0/M_PI;
+			float rollacc	= atan2(accelx,accelz) *180.0/M_PI;
+
+			pitchlocal 	= 0.98*pitchlocal + 0.02*pitchacc;
+			rolllocal	= 0.98*rolllocal + 0.02*rollacc;
 		}
-		pImuPtr->pitch = pitchlocal;
+		pImuPtr->pitch 	= pitchlocal;
+		pImuPtr->roll 	= rolllocal;
+		pImuPtr->yaw 	= yawlocal;
 
 	}
 
