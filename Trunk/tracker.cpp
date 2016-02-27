@@ -78,12 +78,12 @@ float trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed)
     {
         int numObjects = hierarchy.size();
         //if number of objects greater than MAX_NUM_OBJECTS we have a noisy filter
-        if(numObjects<MAX_NUM_OBJECTS)
-        {
+        if(numObjects<MAX_NUM_OBJECTS){
             for (int index = 0; index >= 0; index = hierarchy[index][0])
             {
                 Moments moment = moments((cv::Mat)contours[index]);
                 double area = moment.m00;
+                //diamitor = sqrt(area/3.14);
 
                 //if the area is less than 20 px by 20px then it is probably just noise
                 //if the area is the same as the 3/2 of the image size, probably just a bad filter
@@ -96,25 +96,26 @@ float trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed)
                     y = moment.m01/area;
                     objectFound = true;
                     refArea = area;
-                
-                    minEnclosingCircle(contours[mainObject],centerOfEnclosingCircle,radius);
-                    putText(cameraFeed,"Found Object",Point(0,50),2,1,Scalar(0,255,255),2);//let user know you found an object
+                }else objectFound = false;
+            }
+            //let user know you found an object
+            if(objectFound ==true)
+            {
+                minEnclosingCircle(contours[mainObject],centerOfEnclosingCircle,radius);
+                putText(cameraFeed,"Found Object",Point(0,50),2,1,Scalar(0,255,255),2);
 
-                    //drawContours(cameraFeed,contours,mainObject,Scalar(0,0,0),3);//drowing contours
-                    circle(cameraFeed,centerOfEnclosingCircle,radius,Scalar(0,0,0));
-                    drawObject(x,y,cameraFeed);//draw object location on screen
+                //drawContours(cameraFeed,contours,mainObject,Scalar(0,0,0),3);//drowing contours
+                circle(cameraFeed,centerOfEnclosingCircle,radius,Scalar(0,0,0));
+                drawObject(x,y,cameraFeed);//draw object location on screen
 
-                    cout<<"radius: "<<radius<<endl;
-             }
-        }
-        return radius;
-     }
+                cout<<"radius: "<<radius<<endl;
+                return radius;
+            }
 
-   }
+        }else putText(cameraFeed,"TOO MUCH NOISE! ADJUST FILTER",Point(0,50),1,2,Scalar(0,0,255),2);
+    }
     return -1;
 }
-
-
 int main()
 {
     //some boolean variables for different functionality within this
