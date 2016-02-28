@@ -1,9 +1,24 @@
-# include <prox.h>
+/* prox.cpp
+ * Author: Acura Tang
+ * Description: intercaing with the proximity sensor
+ */
+ #include <prox.h>
 
-void proxSetup(void)
+void proxStartTimer(void)
 {
-    pinMode(PROX_OUTPUT_PIN,OUTPUT);//seting the output pin to the proximity sensor
-    if(wiringPiISR(ISR_START_PIN,INT_EDGE_FALLING,&proxStartTimer)<0)
+    proxStartTime = millis();
+}
+
+void proxStopTimer(void)
+{
+    proxDistance = (millis()-proxStartTime)*0.034;
+    proxReadyFlag = true;
+}
+
+prox::prox(void)
+{
+    pinMode(PROX_TRIGGER_PIN,OUTPUT);//seting the output pin to the proximity sensor
+    if(wiringPiISR(ISR_START_PIN,INT_EDGE_RISING,&proxStartTimer)<0)
     {
         std::cout<<"Stra Time ISR Setup Failed"<<std::endl;
     }
@@ -13,12 +28,21 @@ void proxSetup(void)
     }
 }
 
-void proxStartTimer(void)
+void prox::proxTrigger(void)//send out pluse to Tring pin
 {
-    proxStartTime = millis();
+    proxReadyFlag = false;
+    digitalWrite(PROX_TRIGGER_PIN,1);
+    delayMicroseconds(10);
+    digitalWrite(PROX_TRIGGER_PIN,0);
+
 }
 
-void proxStopTimer(void)
+int getDistance(void)// retun -1 if there is no nes data
 {
-    distance = (millis()-proxStartTime)*0.034;
+    if(proxReadyFlag)
+    {
+        proxReadyFlag = false;
+        return proxDistance;
+    }
+    return -1;
 }

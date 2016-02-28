@@ -18,7 +18,7 @@ int cPwmBoard::setup()
 }
 
 
-int cPwmBoard::setPWM(int reg, float duty)
+int cPwmBoard::setPwm(int reg, float duty)
     {
     int val = (40.96 * duty)-1;  //0~4095 values in PWM
     int high = val/256;    //High nibble(4bit)
