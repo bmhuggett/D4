@@ -1,60 +1,98 @@
 /* RCreceiver.cpp
  * Author: Ben
- * Description:
+ * Description: Gets the inputs from the RC receiver module's PWM signal.
  */
 
 #include <wiringPi.h>
 #include "cRCreceiver.h"
 
-#define RC_PW_OFFSET_X 1500
+#define RC_PW_OFFSET 1500
 
-unsigned int start_times[sizeof(RC_PINS_T)];
-unsigned int PWs_in_us[sizeof(RC_PINS_T)];
+unsigned int start_times[RC_maximum_channels];
+unsigned int PWs_in_us[RC_maximum_channels];
 
-static void startStopLRTimer(void);
-static void startStopUDTimer(void);
+static void startStopR_LRTimer(void);
+static void startStopR_UDTimer(void);
+static void startStopL_LRTimer(void);
+static void startStopL_UDTimer(void);
 
 
 cRCreceiver::cRCreceiver()
 {
-	wiringPiISR(RC_LEFTRIGHT_PIN, INT_EDGE_BOTH, &startStopLRTimer);
-	wiringPiISR(RC_UPDOWN_PIN, 	  INT_EDGE_BOTH, &startStopUDTimer);
+	wiringPiISR(RC_RHS_LEFTRIGHT_PIN, INT_EDGE_BOTH, &startStopR_LRTimer);
+	wiringPiISR(RC_RHS_UPDOWN_PIN, 	  INT_EDGE_BOTH, &startStopR_UDTimer);
+	wiringPiISR(RC_LHS_LEFTRIGHT_PIN, INT_EDGE_BOTH, &startStopL_LRTimer);
+	wiringPiISR(RC_LHS_UPDOWN_PIN, 	  INT_EDGE_BOTH, &startStopL_UDTimer);
 }
 
 // Returns x,y velocity vector desired by user as values from -500ish to 500ish.
-std::pair<int, int> cRCreceiver::getInputSpeed(void)
+std::pair<int, int> cRCreceiver::getInputMovementSpeed(void)
 {
-	int x = PWs_in_us[RC_LEFTRIGHT_PIN] - RC_PW_OFFSET;
-	int y = PWs_in_us[RC_UPDOWN_PIN] - RC_PW_OFFSET;
+	int x = PWs_in_us[RC_RHS_LEFTRIGHT_PIN] - RC_PW_OFFSET;
+	int y = PWs_in_us[RC_RHS_UPDOWN_PIN] - RC_PW_OFFSET;
 
 	std::pair<int, int> velocity_vector(x, y);
 
 	return velocity_vector;
 }
 
-
-// ISR for left/right channel.
-static void startStopLRTimer(void)
+// Returns rotational change desired by user as values from -500ish to 500ish.
+int cRCreceiver::getInputRotationSpeed(void)
 {
-	if(digitalRead(RC_LEFTRIGHT_PIN) == HIGH)	//Rising edge
+	int x = PWs_in_us[RC_LHS_LEFTRIGHT_PIN] - RC_PW_OFFSET;
+
+	return x;
+}
+
+
+// ISR for right-hand left/right channel.
+static void startStopR_LRTimer(void)
+{
+	if(digitalRead(RC_RHS_LEFTRIGHT_PIN) == HIGH)	//Rising edge
 	{
-		start_times[RC_LEFTRIGHT_PIN] = micros();
+		start_times[RC_RHS_LEFTRIGHT_PIN] = micros();
 	}
 	else	//Falling edge
 	{
-		PWs_in_us[RC_LEFTRIGHT_PIN] = micros() - start_times[RC_LEFTRIGHT_PIN];
+		PWs_in_us[RC_RHS_LEFTRIGHT_PIN] = micros() - start_times[RC_RHS_LEFTRIGHT_PIN];
 	}
 }
 
-// ISR for up/down channel.
-static void startStopUDTimer(void)
+// ISR for right-hand up/down channel.
+static void startStopR_UDTimer(void)
 {
-	if(digitalRead(RC_UPDOWN_PIN) == HIGH)	//Rising edge
+	if(digitalRead(RC_RHS_UPDOWN_PIN) == HIGH)	//Rising edge
 	{
-		start_times[RC_UPDOWN_PIN] = micros();
+		start_times[RC_RHS_UPDOWN_PIN] = micros();
 	}
 	else	//Falling edge
 	{
-		PWs_in_us[RC_UPDOWN_PIN] = micros() - start_times[RC_UPDOWN_PIN];
+		PWs_in_us[RC_RHS_UPDOWN_PIN] = micros() - start_times[RC_RHS_UPDOWN_PIN];
+	}
+}
+
+// ISR for left-hand left/right channel.
+static void startStopL_LRTimer(void)
+{
+	if(digitalRead(RC_LHS_LEFTRIGHT_PIN) == HIGH)	//Rising edge
+	{
+		start_times[RC_LHS_LEFTRIGHT_PIN] = micros();
+	}
+	else	//Falling edge
+	{
+		PWs_in_us[RC_LHS_LEFTRIGHT_PIN] = micros() - start_times[RC_LHS_LEFTRIGHT_PIN];
+	}
+}
+
+// ISR for left-hand up/down channel.
+static void startStopL_UDTimer(void)
+{
+	if(digitalRead(RC_LHS_UPDOWN_PIN) == HIGH)	//Rising edge
+	{
+		start_times[RC_LHS_UPDOWN_PIN] = micros();
+	}
+	else	//Falling edge
+	{
+		PWs_in_us[RC_LHS_UPDOWN_PIN] = micros() - start_times[RC_LHS_UPDOWN_PIN];
 	}
 }
