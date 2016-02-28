@@ -1,5 +1,4 @@
-#include <iostream>
-#include <wiringPiI2C.h>
+
 
 //REGISTERS
 #define PWM_ADDRESS 0x40

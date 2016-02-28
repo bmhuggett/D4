@@ -1,4 +1,6 @@
 #include "cPwmBoard.h"
+#include <iostream>
+#include <wiringPiI2C.h>
 
 cPwmBoard::cPwmBoard()
 {
