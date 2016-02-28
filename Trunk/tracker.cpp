@@ -1,3 +1,9 @@
+/* tracker.cpp
+ * Author: Acura Tang
+ * Description: Track object by color with camare
+ * Reference: modifcation of Kyle Hounslow's objectTrackingTutorial.cpp
+ * https://raw.githubusercontent.com/kylehounslow/opencv-tuts/master/object-tracking-tut/objectTrackingTut.cpp
+ */
 #include <tracker.h>
 
 using namespace cv;
@@ -116,55 +122,54 @@ float trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed)
     }
     return -1;
 }
-int main()
+
+void cvMode(void)
 {
-    //some boolean variables for different functionality within this
-    //program
+//some boolean variables for different functionality within this
+//program
 
-    //Matrix to store each frame of the webcam feed
-    Mat cameraFeed;
-    //matrix storage for HSV image
-    Mat HSV;
-    //matrix storage for binary threshold image
-    Mat threshold;
-    //x and y values for the location of the object
-    int x=0, y=0;
-    //create slider bars for HSV filtering
-    //video capture object to acquire webcam feed
-    VideoCapture capture;
-    //open capture object at location zero (default location for webcam)
-    capture.open(0);
+//Matrix to store each frame of the webcam feed
+Mat cameraFeed;
+//matrix storage for HSV image
+Mat HSV;
+//matrix storage for binary threshold image
+Mat threshold;
+//x and y values for the location of the object
+int x=0, y=0;
+//create slider bars for HSV filtering
+//video capture object to acquire webcam feed
+VideoCapture capture;
+//open capture object at location zero (default location for webcam)
+capture.open(0);
 
-    //set height and width of capture frame
-    capture.set(CV_CAP_PROP_FRAME_WIDTH,FRAME_WIDTH);
-    capture.set(CV_CAP_PROP_FRAME_HEIGHT,FRAME_HEIGHT);
-    //start an infinite loop where webcam feed is copied to cameraFeed matrix
-    //all of our operations will be performed within this loop
-    cout<<"Prass 'q' To Quit"<<endl;
-    while(waitKey(30) != 'q')
+//set height and width of capture frame
+capture.set(CV_CAP_PROP_FRAME_WIDTH,FRAME_WIDTH);
+capture.set(CV_CAP_PROP_FRAME_HEIGHT,FRAME_HEIGHT);
+//start an infinite loop where webcam feed is copied to cameraFeed matrix
+//all of our operations will be performed within this loop
+cout<<"Prass 'q' To Quit"<<endl;
+while(waitKey(30) != 'q')
     {
-        //store image to matrix
-        capture.read(cameraFeed);
-        //convert frame from BGR to HSV colorspace
-        cvtColor(cameraFeed,HSV,COLOR_BGR2HSV);
-        //filter HSV image between values and store filtered image to
-        //threshold matrix
-        inRange(HSV,Scalar(H_MIN,S_MIN,V_MIN),Scalar(H_MAX,S_MAX,V_MAX),threshold);
-        //perform morphological operations on thresholded image to eliminate noise
-        //and emphasize the filtered object(s)
-        morphOps(threshold);
-        //pass in thresholded frame to our object tracking function
-        //this function will return the x and y coordinates of the
-        //filtered object
-         float radius = trackFilteredObject(x,y,threshold,cameraFeed);
-         if(((x-radius)<0 ||(x+radius)>640 ||(y-radius)<0 || (y+radius)>480))//partialy out of frame
+    //store image to matrix
+    capture.read(cameraFeed);
+    //convert frame from BGR to HSV colorspace
+     cvtColor(cameraFeed,HSV,COLOR_BGR2HSV);
+     //filter HSV image between values and store filtered image to
+     //threshold matrix
+     inRange(HSV,Scalar(H_MIN,S_MIN,V_MIN),Scalar(H_MAX,S_MAX,V_MAX),threshold);
+     //perform morphological operations on thresholded image to eliminate noise
+     //and emphasize the filtered object(s)
+     morphOps(threshold);
+     //pass in thresholded frame to our object tracking function
+     //this function will return the x and y coordinates of the
+     //filtered object
+     float radius = trackFilteredObject(x,y,threshold,cameraFeed);
+     if(((x-radius)<0 ||(x+radius)>640 ||(y-radius)<0 || (y+radius)>480))//partialy out of frame
          {
-             cout<<"OUT OF FRAME"<<endl;
+           cout<<"OUT OF FRAME"<<endl;
          }
-        //show frames
-        imshow("Tracker",cameraFeed);
-        imshow("Binary",threshold);
+      //show frames
+      imshow("Tracker",cameraFeed);
+      imshow("Binary",threshold);
     }
-
-    return 0;
 }
