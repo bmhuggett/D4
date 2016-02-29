@@ -1,5 +1,5 @@
 #include "cRCreceiver.h"
-#include "cPwmBoard.h"
+#include "cMotorDriver.h"
 #include <iostream>
 #include <wiringPi.h>
 
@@ -13,13 +13,11 @@ int main(void)
 
 	cPWMBoard my_PWM;
 
+	cMotorDriver my_motors(&my_PWM);
+
 	while(1)
 	{
-		delay(500);
-
 		vel = my_RC.getInputMovementSpeed();
-		rot = my_RC.getInputRotationSpeed();
-
-		
+		setMotorSpeed(MOTOR_A, vel.first/10);
 	}
 }
