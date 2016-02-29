@@ -4,12 +4,12 @@
  */
  #include <prox.h>
 
-void proxStartTimer(void)
+void static proxStartTimer(void)
 {
     proxStartTime = millis();
 }
 
-void proxStopTimer(void)
+void static proxStopTimer(void)
 {
     proxDistance = (millis()-proxStartTime)*0.034;
     proxReadyFlag = true;
