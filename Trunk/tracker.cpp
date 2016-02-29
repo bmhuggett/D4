@@ -5,12 +5,21 @@
  * https://raw.githubusercontent.com/kylehounslow/opencv-tuts/master/object-tracking-tut/objectTrackingTut.cpp
  */
 #include <tracker.h>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <stdio.h>
+#include <math.h>
+#include <sstream>
+#include <string>
+#include <iostream>
+#include <wiringPi.h>
 
 using namespace cv;
 using namespace std;
 
 
-string intToString(int number){
+string intToString(int number)
+{
 
 
     std::stringstream ss;
@@ -22,10 +31,6 @@ void drawObject(int x, int y,Mat &frame)
 {
     //use some of the openCV drawing functions to draw crosshairs
     //on your tracked image!
-
-    //UPDATE:JUNE 18TH, 2013
-    //added 'if' and 'else' statements to prevent
-    //memory errors from writing off the screen (ie. (-25,-25) is not within the window!)
 
     if(y-25>0)
     line(frame,Point(x,y),Point(x,y-25),Scalar(0,255,0),2);
@@ -53,11 +58,12 @@ void morphOps(Mat &thresh)
     Mat dilateElement = getStructuringElement( MORPH_RECT,Size(8,8));
 
     erode(thresh,thresh,erodeElement);
-    erode(thresh,thresh,erodeElement);
+    //erode(thresh,thresh,erodeElement);
 
 
     dilate(thresh,thresh,dilateElement);
-    dilate(thresh,thresh,dilateElement);
+    //dilate(thresh,thresh,dilateElement);
+
 
 
 
@@ -71,7 +77,6 @@ float trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed)
     //these two vectors needed for output of findContours
     vector< vector<Point> > contours;
     vector<Vec4i> hierarchy;
-    //vextor<vector<Rect>> boundingRect;
     //find contours of filtered image using openCV findContours function
     findContours(temp,contours,hierarchy,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE );
     //use moments method to find our filtered object
@@ -111,7 +116,7 @@ float trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed)
                 putText(cameraFeed,"Found Object",Point(0,50),2,1,Scalar(0,255,255),2);
 
                 //drawContours(cameraFeed,contours,mainObject,Scalar(0,0,0),3);//drowing contours
-                circle(cameraFeed,centerOfEnclosingCircle,radius,Scalar(0,0,0));
+                circle(cameraFeed,centerOfEnclosingCircle,radius,Scalar(0,0,0));//finding the minimum encloseing circle of the object
                 drawObject(x,y,cameraFeed);//draw object location on screen
 
                 cout<<"radius: "<<radius<<endl;
@@ -131,7 +136,7 @@ void cvMode(void)
 //Matrix to store each frame of the webcam feed
 Mat cameraFeed;
 //matrix storage for HSV image
-Mat HSV;
+//Mat HSV;
 //matrix storage for binary threshold image
 Mat threshold;
 //x and y values for the location of the object
@@ -148,15 +153,15 @@ capture.set(CV_CAP_PROP_FRAME_HEIGHT,FRAME_HEIGHT);
 //start an infinite loop where webcam feed is copied to cameraFeed matrix
 //all of our operations will be performed within this loop
 cout<<"Prass 'q' To Quit"<<endl;
-while(waitKey(30) != 'q')
+while(waitKey(30) != 'q')//change this to digitalRead(CV_MODE_PIN) later
     {
     //store image to matrix
     capture.read(cameraFeed);
     //convert frame from BGR to HSV colorspace
-     cvtColor(cameraFeed,HSV,COLOR_BGR2HSV);
+     cvtColor(cameraFeed,threshold,COLOR_BGR2HSV);
      //filter HSV image between values and store filtered image to
      //threshold matrix
-     inRange(HSV,Scalar(H_MIN,S_MIN,V_MIN),Scalar(H_MAX,S_MAX,V_MAX),threshold);
+     inRange(threshold,Scalar(H_MIN,S_MIN,V_MIN),Scalar(H_MAX,S_MAX,V_MAX),threshold);
      //perform morphological operations on thresholded image to eliminate noise
      //and emphasize the filtered object(s)
      morphOps(threshold);
@@ -164,12 +169,21 @@ while(waitKey(30) != 'q')
      //this function will return the x and y coordinates of the
      //filtered object
      float radius = trackFilteredObject(x,y,threshold,cameraFeed);
-     if(((x-radius)<0 ||(x+radius)>640 ||(y-radius)<0 || (y+radius)>480))//partialy out of frame
+
+     /*
+     ADD MOTER ONTAL FUCTIONS HERE
+     if(x<213? && x>0)
+     {
+        do somethig
+     }
+     so on...
+     */
+     if(((x-radius)<0 ||(x+radius)>640 ||(y-radius)<0 || (y+radius)>480))//partialy out of frame condition
          {
            cout<<"OUT OF FRAME"<<endl;
          }
       //show frames
-      imshow("Tracker",cameraFeed);
-      imshow("Binary",threshold);
+      imshow("Tracker",cameraFeed);//for debuging
+      imshow("Binary",threshold);//for debuging
     }
 }
