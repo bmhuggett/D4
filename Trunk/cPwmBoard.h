@@ -42,6 +42,7 @@ public:
 	cPwmBoard();
 	int setup();
 	int setPwm(int reg, float duty);
+	int setPwmInv(int reg, float duty);
 	int setPwmAll(float duty);
 	int setDrive(int mode);
 	int setPreScaler(int val);
