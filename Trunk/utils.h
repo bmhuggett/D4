@@ -12,6 +12,8 @@ int combineRegSigned(int highbyte, int lowbyte);
 
 int combineRegUnsigned(int highbyte, int lowbyte);
 
+//Change the bit in location "bit" of the value "value" and return
+
 int bitFlip(int bit, int value);
 
 int bitHigh(int bit, int value);

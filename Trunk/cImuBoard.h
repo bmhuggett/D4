@@ -10,7 +10,6 @@
 #define CIMUBOARD_H
 
 
-//#define DEBUG_IMU	//Uncomment for debug cout data on function entry
 
 enum eAccelRange{RANGE_2,RANGE_4,RANGE_8,RANGE_16};				//Range enums
 enum eGyroRange	{RANGE_250, RANGE_500, RANGE_1000, RANGE_2000};

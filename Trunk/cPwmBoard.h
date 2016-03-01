@@ -1,5 +1,3 @@
-
-
 //REGISTERS
 #define PWM_ADDRESS 0x40
 

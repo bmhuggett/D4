@@ -7,6 +7,8 @@
 #include "cRCreceiver.h"
 
 #define RC_PW_OFFSET 1500
+//#define RC_DEBUG //Comment out to disable debug
+
 
 unsigned int start_times[RC_maximum_channels];
 unsigned int PWs_in_us[RC_maximum_channels];
@@ -23,6 +25,9 @@ cRCreceiver::cRCreceiver()
 	wiringPiISR(RC_RHS_UPDOWN_PIN, 	  INT_EDGE_BOTH, &startStopR_UDTimer);
 	wiringPiISR(RC_LHS_LEFTRIGHT_PIN, INT_EDGE_BOTH, &startStopL_LRTimer);
 	wiringPiISR(RC_LHS_UPDOWN_PIN, 	  INT_EDGE_BOTH, &startStopL_UDTimer);
+	#ifdef RC_DEBUG
+    std::cout<<"RC | Class instantiated on pins "<<RC_RHS_LEFTRIGHT_PIN<<", "<<RC_RHS_UPDOWN_PIN<<", "RC_LHS_LEFTRIGHT_PIN<<", "RC_LHS_UPDOWN_PIN<<std::endl;
+    #endif
 }
 
 // Returns x,y velocity vector desired by user as values from -500ish to 500ish.

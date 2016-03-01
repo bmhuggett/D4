@@ -5,8 +5,13 @@
 
 #include "cMotorDriver.h"
 
+//#define MOTOR_DEBUG
+
 cMotorDriver::cMotorDriver(cPwmBoard* pPwmBoardInstance)
 {
+	#ifdef MOTOR_DEBUG
+	std::cout<<"MOTOR | Class Instantiated"<<std::endl;
+	#endif
 	pPwmBoard = pPwmBoardInstance;
 	pPwmBoard->setDrive(TOTEM_POLE);
 	//pPwmBoard->setFreq( );		TODO!!

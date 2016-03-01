@@ -36,18 +36,21 @@
 #define PWR_MGMT_1		0x6B
 #define WHO_AM_I		0x75
 
-cImuBoard* pImuPtr;
+//#define IMU_DEBUG //Comment out to disable debug
+
+static cImuBoard* pImuPtr;
 
 cImuBoard::cImuBoard()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU constructor"<<std::endl;
+	#ifdef IMU_DEBUG
+	std::cout<<"IMU | Class instantiated"<<std::endl;
 	#endif
-
 	imuFd = -1;
 	if(setup() < 0)
 	{
-		std::cout<<"IMU board setup failure"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout<<"IMU | Failed to initialise IMU board I2C"<<std::endl;
+		#endif
 	}
 	zero();
 	pImuPtr = this;	//Point the cImuBoard pointer here so the loop can use the
@@ -59,9 +62,6 @@ cImuBoard::cImuBoard()
 
 int cImuBoard::setup()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU setup"<<std::endl;
-	#endif
 
 	imuFd = wiringPiI2CSetup(IMU_ADDRESS);
     return imuFd;
@@ -69,82 +69,78 @@ int cImuBoard::setup()
 
 int cImuBoard::wake()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU wake"<<std::endl;
-	#endif
 
 	//Write 0 to the Sleep bit in PWR_MGMT_1
 
 	int regval;
 	if (regval = wiringPiI2CReadReg8(imuFd,PWR_MGMT_1)<0)
 	{
-		std::cout<<"IMU board read failed | PWR_MGMT_1"<<std::endl;
+		std::cout<<"IMU | Failed to read sleep register (PWR_MGMT_1)"<<std::endl;
 		return -1;
 	}
 	regval = bitLow(6,regval);
 	if(wiringPiI2CWriteReg8(imuFd,PWR_MGMT_1,regval)<0)
     {
-        std::cout<<"IMU board write failed | PWR_MGMT_1"<<std::endl;   //Write zero to start value lower byte
+        std::cout<<"IMU | Failed to write to sleep register (PWR_MGMT_1)"<<std::endl;   //Write zero to start value lower byte
         return -1;
     }
 }
 
 int cImuBoard::accelXRaw()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU accelXRaw"<<std::endl;
-	#endif
-
 	int low;
 	int high;
 	low 	= wiringPiI2CReadReg8(imuFd, ACCEL_XOUT_L);
 	high 	= wiringPiI2CReadReg8(imuFd, ACCEL_XOUT_H);
 	if (low<0)
 	{
-		std::cout << "IMU board read failed | ACCEL_XOUT_L" << std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (ACCEL_XOUT_L)" << std::endl;
+		#endif
 		return -1;
 	}
 	if (high<0)
 	{
-		std::cout << "IMU board read failed | ACCEL_XOUT_H" << std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (ACCEL_XOUT_H)" << std::endl;
+		#endif
 		return -1;
 	}
-	#ifdef DEBUG_IMU
-	std::cout<<"	-Low | High = "<<low<<" | "<<high<<std::endl;
+	#ifdef IMU_DEBUG
+	std::cout<<"IMU | Accel X Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
 	#endif
 	return combineRegSigned(high, low);
 }
 int cImuBoard::accelYRaw()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU accelYRaw"<<std::endl;
-	#endif
-
 	int low;
 	int high;
 	low = wiringPiI2CReadReg8(imuFd,ACCEL_YOUT_L);
 	high = wiringPiI2CReadReg8(imuFd,ACCEL_YOUT_H);
 
-	if(low<0)
+	if (low<0)
 	{
-		std::cout<<"IMU board read failed | ACCEL_YOUT_L"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (ACCEL_YOUT_L)" << std::endl;
+		#endif
 		return -1;
 	}
-	if(high<0)
+	if (high<0)
 	{
-		std::cout<<"IMU board read failed | ACCEL_YOUT_H"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (ACCEL_YOUT_H)" << std::endl;
+		#endif
 		return -1;
 	}
-
-	#ifdef DEBUG_IMU
-	std::cout<<"	-Low | High = "<<low<<" | "<<high<<std::endl;
+	#ifdef IMU_DEBUG
+	std::cout<<"IMU | Accel Y Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
 	#endif
 
 	return combineRegSigned(high,low);
 }
 int cImuBoard::accelZRaw()
 {
-	#ifdef DEBUG_IMU
+	#ifdef IMU_DEBUG
 	std::cout<<"IMU accelZRaw"<<std::endl;
 	#endif
 
@@ -153,26 +149,29 @@ int cImuBoard::accelZRaw()
 	low = wiringPiI2CReadReg8(imuFd,ACCEL_ZOUT_L);
 	high = wiringPiI2CReadReg8(imuFd,ACCEL_ZOUT_H);
 
-	if(low <0)
+	if (low<0)
 	{
-		std::cout<<"IMU board read failed | ACCEL_ZOUT_L"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (ACCEL_ZOUT_L)" << std::endl;
+		#endif
 		return -1;
 	}
-	if(high <0)
+	if (high<0)
 	{
-		std::cout<<"IMU board read failed | ACCEL_ZOUT_H"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (ACCEL_ZOUT_H)" << std::endl;
+		#endif
 		return -1;
 	}
-
-	#ifdef DEBUG_IMU
-	std::cout<<"	-Low | High = "<<low<<" | "<<high<<std::endl;
+	#ifdef IMU_DEBUG
+	std::cout<<"IMU | Accel Z Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
 	#endif
 
 	return combineRegSigned(high,low);
 }
 int cImuBoard::tempRaw()
 {
-	#ifdef DEBUG_IMU
+	#ifdef IMU_DEBUG
 	std::cout<<"IMU tempRaw"<<std::endl;
 	#endif
 
@@ -181,22 +180,29 @@ int cImuBoard::tempRaw()
 	low = wiringPiI2CReadReg8(imuFd,TEMP_OUT_L);
 	high = wiringPiI2CReadReg8(imuFd,TEMP_OUT_H);
 
-	if(low <0)
+	if (low<0)
 	{
-		std::cout<<"IMU board read failed | TEMP_OUT_L"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (TEMP_OUT_L)" << std::endl;
+		#endif
 		return -1;
 	}
-	if(high <0)
+	if (high<0)
 	{
-		std::cout<<"IMU board read failed | TEMP_OUT_H"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (TEMP_OUT_H)" << std::endl;
+		#endif
 		return -1;
 	}
+	#ifdef IMU_DEBUG
+	std::cout<<"IMU | Temp Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
+	#endif
 
 	return combineRegSigned(high,low);
 }
 int cImuBoard::gyroXRaw()
 {
-	#ifdef DEBUG_IMU
+	#ifdef IMU_DEBUG
 	std::cout<<"IMU gyroXRaw"<<std::endl;
 	#endif
 
@@ -205,22 +211,29 @@ int cImuBoard::gyroXRaw()
 	low = wiringPiI2CReadReg8(imuFd,GYRO_XOUT_L);
 	high = wiringPiI2CReadReg8(imuFd,GYRO_XOUT_H);
 
-	if(low <0)
+	if (low<0)
 	{
-		std::cout<<"IMU board read failed | GYRO_XOUT_L"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (GYRO_XOUT_L)" << std::endl;
+		#endif
 		return -1;
 	}
-	if(high <0)
+	if (high<0)
 	{
-		std::cout<<"IMU board read failed | GYRO_XOUT_H"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (GYRO_XOUT_H)" << std::endl;
+		#endif
 		return -1;
 	}
+	#ifdef IMU_DEBUG
+	std::cout<<"IMU | Gyro X Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
+	#endif
 
 	return combineRegSigned(high,low);
 }
 int cImuBoard::gyroYRaw()
 {
-	#ifdef DEBUG_IMU
+	#ifdef IMU_DEBUG
 	std::cout<<"IMU gyroYRaw"<<std::endl;
 	#endif
 
@@ -229,20 +242,29 @@ int cImuBoard::gyroYRaw()
 	low = wiringPiI2CReadReg8(imuFd,GYRO_YOUT_L);
 	high = wiringPiI2CReadReg8(imuFd,GYRO_YOUT_H);
 
-	if(low <0)
+	if (low<0)
 	{
-		std::cout<<"IMU board read failed | GYRO_YOUT_L"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (GYRO_YOUT_L)" << std::endl;
+		#endif
+		return -1;
 	}
-	if(high <0)
+	if (high<0)
 	{
-		std::cout<<"IMU board read failed | GYRO_YOUT_H"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (GYRO_YOUT_H)" << std::endl;
+		#endif
+		return -1;
 	}
+	#ifdef IMU_DEBUG
+	std::cout<<"IMU | Gyro Y Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
+	#endif
 
 	return combineRegSigned(high,low);
 }
 int cImuBoard::gyroZRaw()
 {
-	#ifdef DEBUG_IMU
+	#ifdef IMU_DEBUG
 	std::cout<<"IMU gyroZRaw"<<std::endl;
 	#endif
 
@@ -251,42 +273,41 @@ int cImuBoard::gyroZRaw()
 	low = wiringPiI2CReadReg8(imuFd,GYRO_ZOUT_L);
 	high = wiringPiI2CReadReg8(imuFd,GYRO_ZOUT_H);
 
-	if(low <0)
+	if (low<0)
 	{
-		std::cout<<"IMU board read failed | GYRO_ZOUT_L"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (GYRO_ZOUT_L)" << std::endl;
+		#endif
+		return -1;
 	}
-	if(high <0)
+	if (high<0)
 	{
-		std::cout<<"IMU board read failed | GYRO_ZOUT_H"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout << "IMU | Failed to read (GYRO_ZOUT_H)" << std::endl;
+		#endif
+		return -1;
 	}
+	#ifdef IMU_DEBUG
+	std::cout<<"IMU | Gyro Z Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
+	#endif
 
 	return combineRegSigned(high,low);
 }
 
 float cImuBoard::accelX()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU accelX"<<std::endl;
-	#endif
-
 	float value = (float)accelXRaw() / accelMul;
 	return value;
 }
+
 float cImuBoard::accelY()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU accelY"<<std::endl;
-	#endif
-
 	float value = (float)accelYRaw() / accelMul;
 	return value;
 }
+
 float cImuBoard::accelZ()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU accelZ"<<std::endl;
-	#endif
-
 	float value = (float)accelZRaw() / accelMul;
 	return value;
 }
@@ -295,44 +316,33 @@ float cImuBoard::temp()
 {
 	return tempRaw()/340.0 + 36.53;
 }
+
 float cImuBoard::gyroX()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU gyroX"<<std::endl;
-	#endif
-
 	float value = (float)gyroXRaw() / gyroMul;
 	return value;
 }
+
 float cImuBoard::gyroY()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU gyroY"<<std::endl;
-	#endif
-
 	float value = (float)gyroYRaw() / gyroMul;
 	return value;
 }
+
 float cImuBoard::gyroZ()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU gyroZ"<<std::endl;
-	#endif
-
 	float value = (float)gyroZRaw() / gyroMul;
 	return value;
 }
 
 int cImuBoard::setAccelRange(eAccelRange range)
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU setaccelMul"<<std::endl;
-	#endif
-
 	int regval;
 	if (regval = wiringPiI2CReadReg8(imuFd,ACCEL_CONFIG)<0)
 	{
-		std::cout<<"IMU board read failed | ACCEL_CONFIG"<<std::endl;
+		#ifdef IMU_DEBUG
+		std::cout<<"IMU | Failed to read (ACCEL_CONFIG)"<<std::endl;
+		#endif
 		return -1;
 	}
 
@@ -340,21 +350,33 @@ int cImuBoard::setAccelRange(eAccelRange range)
 	switch (range)
 	{
 		case RANGE_2:
+			#ifdef IMU_DEBUG
+			std::cout<<"IMU | Setting Accelerometer range to 2g"<<std::endl;
+			#endif
 			regval = bitLow(3,regval);
 			regval = bitLow(4,regval);
 			accelMul = 16384;
 			break;
 		case RANGE_4:
+			#ifdef IMU_DEBUG
+			std::cout<<"IMU | Setting Accelerometer range to 4g"<<std::endl;
+			#endif
 			regval = bitHigh(3,regval);
 			regval = bitLow(4,regval);
 			accelMul = 8192;
 			break;
 		case RANGE_8:
+			#ifdef IMU_DEBUG
+			std::cout<<"IMU | Setting Accelerometer range to 8g"<<std::endl;
+			#endif
 			regval = bitLow(3,regval);
 			regval = bitHigh(4,regval);
 			accelMul = 4096;
 			break;
 		case RANGE_16:
+			#ifdef IMU_DEBUG
+			std::cout<<"IMU | Setting Accelerometer range to 16g"<<std::endl;
+			#endif
 			regval = bitHigh(3,regval);
 			regval = bitHigh(4,regval);
 			accelMul = 2048;
@@ -362,21 +384,21 @@ int cImuBoard::setAccelRange(eAccelRange range)
 	}
 	if(wiringPiI2CWriteReg8(imuFd,ACCEL_CONFIG,regval)<0)
     {
-        std::cout<<"IMU board write failed | ACCEL_CONFIG"<<std::endl;   //Write zero to start value lower byte
+    	#ifdef IMU_DEMUG
+        std::cout<<"IMU | Write failed (ACCEL_CONFIG)"<<std::endl;   //Write zero to start value lower byte
+        #endif
         return -1;
     }
 }
 
 int cImuBoard::setGyroRange(eGyroRange range)
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU setgyroMul"<<std::endl;
-	#endif
-
 	int regval;
 	if (regval = wiringPiI2CReadReg8(imuFd, GYRO_CONFIG)<0)
 	{
-		std::cout << "IMU board read failed | GYRO_CONFIG" << std::endl;
+		#ifdef IMU_DEBUG
+		std::cout<<"IMU | Failed to read (GYRO_CONFIG)"<<std::endl;
+		#endif
 		return -1;
 	}
 
@@ -384,21 +406,33 @@ int cImuBoard::setGyroRange(eGyroRange range)
 	switch (range)
 	{
 	case RANGE_250:
+		#ifdef IMU_DEBUG
+		std::cout<<"IMU | Gyro Range set to 250"<<std::endl;
+		#endif
 		regval = bitLow(3, regval);
 		regval = bitLow(4, regval);
 		gyroMul = 131;
 		break;
 	case RANGE_500:
+		#ifdef IMU_DEBUG
+		std::cout<<"IMU | Gyro Range set to 500"<<std::endl;
+		#endif
 		regval = bitHigh(3, regval);
 		regval = bitLow(4, regval);
 		gyroMul = 65.5;
 		break;
 	case RANGE_1000:
+		#ifdef IMU_DEBUG
+		std::cout<<"IMU | Gyro Range set to 1000"<<std::endl;
+		#endif
 		regval = bitLow(3, regval);
 		regval = bitHigh(4, regval);
 		gyroMul = 32.8;
 		break;
 	case RANGE_2000:
+		#ifdef IMU_DEBUG
+		std::cout<<"IMU | Gyro Range set to 2000"<<std::endl;
+		#endif
 		regval = bitHigh(3, regval);
 		regval = bitHigh(4, regval);
 		gyroMul = 16.4;
@@ -406,17 +440,15 @@ int cImuBoard::setGyroRange(eGyroRange range)
 	}
 	if (wiringPiI2CWriteReg8(imuFd, GYRO_CONFIG, regval)<0)
 	{
-		std::cout << "IMU board write failed | GYRO_CONFIG" << std::endl;   //Write zero to start value lower byte
+		#ifdef IMU_DEBUG
+		std::cout<<"IMU | Failed to write (GYRO_CONFIG)"<<std::endl;
+		#endif
 		return -1;
 	}
 }
 
 void cImuBoard::zero()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU zero"<<std::endl;
-	#endif
-
 	pitch = 0;
 	yaw = 0;
 	roll = 0;
@@ -424,15 +456,16 @@ void cImuBoard::zero()
 
 int cImuBoard::beginLoop()
 {
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU beginLoop"<<std::endl;
+	#ifdef IMU_DEBUG
+	std::cout<<"IMU | IMU loop start called"<<std::endl;
 	#endif
-
 	loopTime = micros();
 	int x = piThreadCreate(imuLoop);
 	if (x != 0)
 	{
-		std::cout << "Starting up the IMU thread failed" << std::endl;
+		#ifdef IMU_DEBUG
+		std::cout<<"IMU | Failed to start the IMU loop thread"<<std::endl;
+		#endif
 	}
 	return 0;
 }
@@ -449,10 +482,6 @@ void *imuLoop(void* dummy)
 	// Details are different because of the different platform,
 	// but the technique is identical.
 
-
-	#ifdef DEBUG_IMU
-	std::cout<<"IMU threadLoop"<<std::endl;
-	#endif
 	pImuPtr->zero();
 	while(1)
 	{
