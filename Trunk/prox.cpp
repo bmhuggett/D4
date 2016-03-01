@@ -12,16 +12,16 @@ bool proxReadyFlag = false;
 
 static void proxISR(void)
 {
-    if (digitalRead( ISR_PIN))//rising edge
+    if (digitalRead(PROX_ECHO_PIN))//rising edge
     {
         proxStartTime = micros();
-        std::cout<<"strat time :"<<proxStartTime<<std::endl;
+        std::cout << "Start time : " << proxStartTime << std::endl;
     }
     else
     {
-        proxDistance = (micros()-proxStartTime)*0.034;//falling edge
+        proxDistance = (micros() - proxStartTime) * 0.034;//falling edge
         proxReadyFlag = true;
-        std::cout<<"set distance to :"<<proxDistance<<std::endl;
+        std::cout << "Set distance to :" << proxDistance << std::endl;
 
     }
 }
@@ -29,20 +29,20 @@ static void proxISR(void)
 
 prox::prox(void)
 {
-    pinMode(PROX_TRIGGER_PIN,OUTPUT);//seting the output pin to the proximity sensor
-    if(wiringPiISR(ISR_PIN,INT_EDGE_BOTH,&proxISR)<0)
+    pinMode(PROX_TRIGGER_PIN, OUTPUT);//seting the output pin to the proximity sensor
+    if(wiringPiISR(PROX_ECHO_PIN, INT_EDGE_BOTH, &proxISR)<0)
     {
-        std::cout<<"Stra Time ISR Setup Failed"<<std::endl;
+        std::cout << "Start Time ISR Setup Failed" << std::endl;
     }
 }
 
 void prox::proxTrigger(void)//send out pluse to Tring pin
 {
     proxReadyFlag = false;
-    digitalWrite(PROX_TRIGGER_PIN,1);
+    digitalWrite(PROX_TRIGGER_PIN, 1);
     delayMicroseconds(10);
-    digitalWrite(PROX_TRIGGER_PIN,0);
-    std::cout<<"sand trigger"<<std::endl;
+    digitalWrite(PROX_TRIGGER_PIN, 0);
+    std::cout << "Send trigger" << std::endl;
 
 }
 
