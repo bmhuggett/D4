@@ -1,4 +1,5 @@
-
+#ifndef CPWMBOARD_H
+#define CPWMBOARD_H
 
 //REGISTERS
 #define PWM_ADDRESS 0x40
@@ -51,3 +52,4 @@ private:
 	int pwmFd;
 };
 
+#endif

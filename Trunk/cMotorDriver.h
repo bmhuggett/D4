@@ -3,21 +3,26 @@
  * Description: Wrapper class for cPwmBoard, to make motor control easy.
  */
 
+#ifndef CMOTORDRIVER_H
+#define CMOTORDRIVER_H
+
 #include "cPwmBoard.h"
 
-typedef enum MOTOR_PINS_T
+typedef enum MOTORS_T
 		{
-		MOTOR_A = 4,
-		MOTOR_B = 5,
-		MOTOR_C = 6,
-		MOTOR_D = 7
-		} MOTOR_PINS;
+		MOTOR_A,
+		MOTOR_B,
+		MOTOR_C,
+		MOTOR_D
+		} MOTORS;
 
 class cMotorDriver
 {
 public:
 	cMotorDriver(cPwmBoard* pPwmBoardInstance);
-	setMotorSpeed(MOTOR_PINS_T motor, int speed);
+	setMotorSpeed(MOTOR_T motor, int speed);
 private:
 	cPwmBoard* pPwmBoard;
 };
+
+#endif

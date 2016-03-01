@@ -2,6 +2,10 @@
  * Author: Acura Tang
  * Description: intercaing with the proximity sensor
  */
+
+#ifndef CPROX_H
+#define CPROX_H
+
 #define ISR_PIN 4
 #define PROX_TRIGGER_PIN 5//proximity sensor's trigger pin
 
@@ -16,4 +20,4 @@ public:
 
 };
 
-
+#endif

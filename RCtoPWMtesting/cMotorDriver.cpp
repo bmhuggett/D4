@@ -14,7 +14,7 @@ cMotorDriver::cMotorDriver(cPwmBoard* pPwmBoardInstance)
 }
 
 // Choose a motor to set to a speed between -50ish and 50ish (??)
-void cMotorDriver::setMotorSpeed(MOTOR_PINS_T motor, int speed)
+void cMotorDriver::setMotorSpeed(MOTOR_T motor, int speed)
 {
 	duty = speed + 50;
 	if(duty < 2) 		duty = 2;
