@@ -40,11 +40,11 @@ class cPwmBoard
 {
 public:
 	cPwmBoard();
-	int setPwm(int reg, float duty);
-	int setPwmInv(int reg, float duty);
-	int setPwmAll(float duty);
-	int setDrive(int mode);
-	int setFreq(int freq);
+	int setPwm(int reg, float duty);	//Set's the PWM of reg with a duty% duty cycle
+	int setPwmInv(int reg, float duty);	//Opposite signal to setPwm (so 100-duty duty cycle)
+	int setPwmAll(float duty);			//Similar in effect to setPwm on all channels
+	int setDrive(int mode);				//Sets drive to either Open Drain or Totem Pole (see defines)
+	int setFreq(float freq);			//Sets board frequency to freq (between 24 and 1526 Hz)
 
 private:
 	int setup();

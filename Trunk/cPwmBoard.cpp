@@ -154,16 +154,16 @@ int cPwmBoard::setPreScaler(int val)
     return 0;
 }
 
-int cPwmBoard::setFreq(int freq)
+int cPwmBoard::setFreq(float freq)
 {
     if(wiringPiI2CWriteReg8(pwmFd,MODE1,0x11))          //Sleep the device
     {
         std::cout<< "Write failed to PWM_MODE1"<<std::endl;
     }
-    float perc = (  (float)(freq-PRESCALE_MINF)  /  (float)(PRESCALE_MAXF-PRESCALE_MINF)    );   //Get percentage along the freq range
-    int out = (int) (PRESCALE_MIN + perc*(PRESCALE_MAX-PRESCALE_MIN));                          //Translate into same fraction along the byte range
+    
+    int regvalue = (int)(25000000.0/(4096.0*freq))    -1;
 
-    if(wiringPiI2CWriteReg8(pwmFd,PRESCALE_REG,out)<0)
+    if(wiringPiI2CWriteReg8(pwmFd,PRESCALE_REG,regvalue)<0)
     {
         std::cout<<"Write Operation Failed"<<std::endl;  
         return -1;
