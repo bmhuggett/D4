@@ -1,30 +1,38 @@
 /* prox.cpp
  * Author: Acura Tang
  * Description: intercaing with the proximity sensor
- */
- #include <prox.h>
+ */#include <prox.h>
+#include <iostream>
+#include <wiringPi.h>
 
-void static proxStartTimer(void)
+//golbal variables
+int proxStartTime = 0;//the srat time
+int proxDistance = 500;//distance in cm
+bool proxReadyFlag = false;
+
+static void proxISR(void)
 {
-    proxStartTime = millis();
+    if (digitalRead( ISR_PIN))//rising edge
+    {
+        proxStartTime = micros();
+        std::cout<<"strat time :"<<proxStartTime<<std::endl;
+    }
+    else
+    {
+        proxDistance = (micros()-proxStartTime)*0.034;//falling edge
+        proxReadyFlag = true;
+        std::cout<<"set distance to :"<<proxDistance<<std::endl;
+
+    }
 }
 
-void static proxStopTimer(void)
-{
-    proxDistance = (millis()-proxStartTime)*0.034;
-    proxReadyFlag = true;
-}
 
 prox::prox(void)
 {
     pinMode(PROX_TRIGGER_PIN,OUTPUT);//seting the output pin to the proximity sensor
-    if(wiringPiISR(ISR_START_PIN,INT_EDGE_RISING,&proxStartTimer)<0)
+    if(wiringPiISR(ISR_PIN,INT_EDGE_BOTH,&proxISR)<0)
     {
         std::cout<<"Stra Time ISR Setup Failed"<<std::endl;
-    }
-    if(wiringPiISR(ISR_STOP_PIN,INT_EDGE_RISING,&proxStopTimer)<0)
-    {
-        std::cout<<"STop Time ISR Setup Failed"<<std::endl;
     }
 }
 
@@ -34,15 +42,18 @@ void prox::proxTrigger(void)//send out pluse to Tring pin
     digitalWrite(PROX_TRIGGER_PIN,1);
     delayMicroseconds(10);
     digitalWrite(PROX_TRIGGER_PIN,0);
+    std::cout<<"sand trigger"<<std::endl;
 
 }
 
-int getDistance(void)// retun -1 if there is no nes data
+int prox::getDistance(void)// retun -1 if there is no nes data
 {
-    if(proxReadyFlag)
+    if(proxReadyFlag == true)
     {
-        proxReadyFlag = false;
         return proxDistance;
     }
-    return -1;
+    else
+    {
+        return -1;
+    }
 }

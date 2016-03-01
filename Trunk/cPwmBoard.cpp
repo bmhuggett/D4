@@ -9,7 +9,7 @@ cPwmBoard::cPwmBoard()
     {
         std::cout << "Failed to initialise PWM board";
     }
-    if(wiringPiI2CWriteReg8(pwmFd,MODE1,0x01))
+    if(wiringPiI2CWriteReg8(pwmFd,MODE1,0x01))          //Wake the device
     {
         std::cout<< "Write failed to PWM_MODE1"<<std::endl;
     }
@@ -36,22 +36,22 @@ int cPwmBoard::setPwm(int reg, float duty)
 
     if(wiringPiI2CWriteReg8(pwmFd,reg,0)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write zero to start value lower byte
+        std::cout<<"Write Operation Failed"<<std::endl;
         return -1;
     }
     if(wiringPiI2CWriteReg8(pwmFd,reg+1,0)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write zero to start value upper byte
+        std::cout<<"Write Operation Failed"<<std::endl;
         return -1;
     }
     if(wiringPiI2CWriteReg8(pwmFd,reg+2,low)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write low byte to start value lower byte
+        std::cout<<"Write Operation Failed"<<std::endl;
         return -1;
     }
     if(wiringPiI2CWriteReg8(pwmFd,reg+3,high)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write high byte to start value upper byte
+        std::cout<<"Write Operation Failed"<<std::endl;
         return -1;
     }
     std::cout<<"Exiting setPwm"<<std::endl;
@@ -72,22 +72,22 @@ int cPwmBoard::setPwmInv(int reg, float duty)
 
     if(wiringPiI2CWriteReg8(pwmFd,reg,low)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write zero to start value lower byte
+        std::cout<<"Write Operation Failed"<<std::endl;
         return -1;
     }
     if(wiringPiI2CWriteReg8(pwmFd,reg+1,high)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write zero to start value upper byte
+        std::cout<<"Write Operation Failed"<<std::endl;
         return -1;
     }
     if(wiringPiI2CWriteReg8(pwmFd,reg+2,0xFF)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write low byte to start value lower byte
+        std::cout<<"Write Operation Failed"<<std::endl;
         return -1;
     }
     if(wiringPiI2CWriteReg8(pwmFd,reg+3,0x0F)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write high byte to start value upper byte
+        std::cout<<"Write Operation Failed"<<std::endl;
         return -1;
     }
     std::cout<<"Exiting setPwm"<<std::endl;
@@ -102,22 +102,22 @@ int cPwmBoard::setPwmAll(float duty)
 
     if(wiringPiI2CWriteReg8(pwmFd,PWM_ALL_ON,0)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write zero to start value lower byte
+        std::cout<<"Write Operation Failed"<<std::endl;
         return -1;
     }
     if(wiringPiI2CWriteReg8(pwmFd,PWM_ALL_ON+1,0)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write zero to start value lower byte
+        std::cout<<"Write Operation Failed"<<std::endl;  
         return -1;
     }
     if(wiringPiI2CWriteReg8(pwmFd,PWM_ALL_OFF,low)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write zero to start value lower byte
+        std::cout<<"Write Operation Failed"<<std::endl;
         return -1;
     }
     if(wiringPiI2CWriteReg8(pwmFd,PWM_ALL_OFF+1,high)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write zero to start value lower byte
+        std::cout<<"Write Operation Failed"<<std::endl;  
         return -1;
     }
     return 0;
@@ -137,22 +137,41 @@ int cPwmBoard::setDrive(int mode)
 
     if(wiringPiI2CWriteReg8(pwmFd,MODE2,regval)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write zero to start value lower byte
+        std::cout<<"Write Operation Failed"<<std::endl;  
         return -1;
     }
     return 0;
 
 }
 
+int cPwmBoard::setPreScaler(int val)
+{
+    if(wiringPiI2CWriteReg8(pwmFd,PRESCALE_REG,val)<0)
+    {
+        std::cout<<"Write Operation Failed"<<std::endl;  
+        return -1;
+    }
+    return 0;
+}
+
 int cPwmBoard::setFreq(int freq)
 {
+    if(wiringPiI2CWriteReg8(pwmFd,MODE1,0x11))          //Sleep the device
+    {
+        std::cout<< "Write failed to PWM_MODE1"<<std::endl;
+    }
     float perc = (  (float)(freq-PRESCALE_MINF)  /  (float)(PRESCALE_MAXF-PRESCALE_MINF)    );   //Get percentage along the freq range
     int out = (int) (PRESCALE_MIN + perc*(PRESCALE_MAX-PRESCALE_MIN));                          //Translate into same fraction along the byte range
 
     if(wiringPiI2CWriteReg8(pwmFd,PRESCALE_REG,out)<0)
     {
-        std::cout<<"Write Operation Failed"<<std::endl;   //Write zero to start value lower byte
+        std::cout<<"Write Operation Failed"<<std::endl;  
         return -1;
     }
     return 0;
+
+    if(wiringPiI2CWriteReg8(pwmFd,MODE1,0x01))          //Wakeleep the device
+    {
+        std::cout<< "Write failed to PWM_MODE1"<<std::endl;
+    }
 }
