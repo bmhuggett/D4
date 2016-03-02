@@ -9,8 +9,8 @@
 cMotorDriver::cMotorDriver(cPwmBoard* pPwmBoardInstance)
 {
 	pPwmBoard = pPwmBoardInstance;
+	pPwmBoard->setFreq(1000);
 	pPwmBoard->setDrive(TOTEM_POLE);
-	//pPwmBoard->setFreq( );		TODO!!
 	pPwmBoard->setPwmAll(50);
 }
 
