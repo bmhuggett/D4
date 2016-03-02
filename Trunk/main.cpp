@@ -1,16 +1,11 @@
 #include <iostream>
 #include <wiringPi.h>
-#include <cPwmBoard.h>
-#include <prox.h>
-#include <tracker.h>
+#include "cMotorDriver.h"
+#include "cRCreceiver.h"
+#include "cProx.h"
 
 #define ROTATION_DIVISOR     5
 #define MOTOR_DRIVER_DIVISOR 10
-
-PI_THREAD(music)
-{
-       system("omxplayer -o local BB8.mp3");
-}
 
 
 int main()
@@ -21,9 +16,7 @@ int main()
         return -1;
     }
 
-    piThreadCreate(music);
-
-    prox prox0;
+    cProx my_prox;
     /*
     while(1)
     {
