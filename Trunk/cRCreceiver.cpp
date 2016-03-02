@@ -25,6 +25,9 @@ cRCreceiver::cRCreceiver()
 	wiringPiISR(RC_RHS_UPDOWN_PIN, 	  INT_EDGE_BOTH, &startStopR_UDTimer);
 	wiringPiISR(RC_LHS_LEFTRIGHT_PIN, INT_EDGE_BOTH, &startStopL_LRTimer);
 	wiringPiISR(RC_LHS_UPDOWN_PIN, 	  INT_EDGE_BOTH, &startStopL_UDTimer);
+
+	for(int i = 0; i < RC_maximum_channels; i++)	PWs_in_us[i] = RC_PW_OFFSET;
+
 	#ifdef RC_DEBUG
     std::cout<<"RC | Class instantiated on pins "<<RC_RHS_LEFTRIGHT_PIN<<", "<<RC_RHS_UPDOWN_PIN<<", "RC_LHS_LEFTRIGHT_PIN<<", "RC_LHS_UPDOWN_PIN<<std::endl;
     #endif
