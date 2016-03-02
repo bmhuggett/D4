@@ -6,7 +6,7 @@
 #ifndef CRCRECEIVER_H
 #define CRCRECEIVER_H
 
- #include <tuple>
+
 
 typedef const enum RC_PINS_T 
 					{
@@ -22,7 +22,6 @@ class cRCreceiver
 public:
 	cRCreceiver();
 	std::pair<int, int> getInputMovementSpeed(void);
-	int 				getInputRotationSpeed(void);
-};
+	int 				getInputRotationSpeed(void);};
 
 #endif
