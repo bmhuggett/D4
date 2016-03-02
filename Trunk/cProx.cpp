@@ -5,7 +5,7 @@
 
 //#define PROX_DEBUG  //Comment out to disable debug
 
-#include "cProx.h"
+#include <prox.h>
 #include <iostream>
 #include <wiringPi.h>
 
