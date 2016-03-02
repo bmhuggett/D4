@@ -6,7 +6,7 @@
 #ifndef CRCRECEIVER_H
 #define CRCRECEIVER_H
 
-
+#include <tuple>
 
 typedef const enum RC_PINS_T 
 					{

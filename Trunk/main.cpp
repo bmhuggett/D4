@@ -1,16 +1,16 @@
 #include <iostream>
 #include <wiringPi.h>
-#include <cPwmBoard.h>
-#include <prox.h>
-#include <tracker.h>
+#include "cMotorDriver.h"
+#include "cRCreceiver.h"
+#include "cProx.h"
 
 #define ROTATION_DIVISOR     5
 #define MOTOR_DRIVER_DIVISOR 10
 
-PI_THREAD(music)
+/*PI_THREAD(music)
 {
        system("omxplayer -o local BB8.mp3");
-}
+}*/
 
 
 int main()
@@ -21,9 +21,9 @@ int main()
         return -1;
     }
 
-    piThreadCreate(music);
+    //piThreadCreate(music);
 
-    prox prox0;
+    cProx prox0;
     /*
     while(1)
     {
@@ -34,15 +34,16 @@ int main()
     }
     */
 
-    cRCreceiver my_RC;
+    cRCreceiver my_RC = cRCreceiver();
     std::pair<int, int> vel(0,0);
     int rot = 0;
 
-    cPwmBoard my_PWM;
+    cPwmBoard my_PWM = cPwmBoard();
     cMotorDriver my_motors(&my_PWM);
 
     while(1)
     {
+	delay(200);
         //if(queryCVMode())   cvMode();     //TODO: Work out how to integrate this with the control loop properly.
 
         vel = my_RC.getInputMovementSpeed();

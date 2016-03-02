@@ -5,6 +5,7 @@
 
 #include <wiringPi.h>
 #include "cRCreceiver.h"
+#include <iostream>
 
 #define RC_PW_OFFSET 1500
 #define CV_MODE_THRESHOLD 300	// Between 0 and 500
@@ -30,8 +31,8 @@ cRCreceiver::cRCreceiver()
 	for(int i = 0; i < RC_maximum_channels; i++)	PWs_in_us[i] = RC_PW_OFFSET;
 
 	#ifdef RC_DEBUG
-    std::cout<<"RC | Class instantiated on pins "<<RC_RHS_LEFTRIGHT_PIN<<", "<<RC_RHS_UPDOWN_PIN<<", "RC_LHS_LEFTRIGHT_PIN<<", "RC_LHS_UPDOWN_PIN<<std::endl;
-    #endif
+    	std::cout<<"RC | Class instantiated on pins "<<RC_RHS_LEFTRIGHT_PIN<<", "<<RC_RHS_UPDOWN_PIN<<", "<<RC_LHS_LEFTRIGHT_PIN<<", "<<RC_LHS_UPDOWN_PIN<<std::endl;
+    	#endif
 }
 
 // Returns x,y velocity vector desired by user as values from -500ish to 500ish.

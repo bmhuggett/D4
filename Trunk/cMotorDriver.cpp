@@ -14,7 +14,7 @@ cMotorDriver::cMotorDriver(cPwmBoard* pPwmBoardInstance)
 	std::cout<<"MOTOR | Class Instantiated"<<std::endl;
 	#endif
 	pPwmBoard = pPwmBoardInstance;
-	pPwmBoard->setFreq(1000);
+	pPwmBoard->setFreq(70);
 	pPwmBoard->setDrive(TOTEM_POLE);
 	pPwmBoard->setPwmAll(50);
 }
