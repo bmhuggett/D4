@@ -3,6 +3,9 @@
  * Description: interfaing with the proximity sensor
  */
 
+#ifndef CPROX_H
+#define CPROX_H
+
 #define PROX_ECHO_PIN 4
 #define PROX_TRIGGER_PIN 5//proximity sensor's trigger pin
 
@@ -17,3 +20,5 @@ public:
 };
 
 //void proxISR(void) also declared here as static
+
+#endif
