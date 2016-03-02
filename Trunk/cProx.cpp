@@ -16,7 +16,7 @@ bool proxReadyFlag = false;
 
 static void proxISR(void)
 {
-    if (digitalRead( ISR_PIN))  //rising edge
+    if (digitalRead( PROX_ECHO_PIN))  //rising edge
     {
         proxStartTime = micros();
         #ifdef PROX_DEBUG
@@ -38,12 +38,12 @@ cProx::cProx(void)
 {
     
     pinMode(PROX_TRIGGER_PIN,OUTPUT);                       //setting the output pin to the proximity sensor
-    if(wiringPiISR(ISR_PIN,INT_EDGE_BOTH,&proxISR)<0)
+    if(wiringPiISR(PROX_ECHO_PIN,INT_EDGE_BOTH,&proxISR)<0)
     {
         std::cout<<"Prox | ISR Setup Failed"<<std::endl;
     }
     #ifdef PROX_DEBUG
-    std::cout<<"Prox | Class instantiated on pins "<<PROX_TRIGGER_PIN<<", "<<ISR_PIN<<std::endl;
+    std::cout<<"Prox | Class instantiated on pins "<<PROX_TRIGGER_PIN<<", "<<PROX_ECHO_PIN<<std::endl;
     #endif
 }
 

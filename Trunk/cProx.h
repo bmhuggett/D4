@@ -3,7 +3,7 @@
  * Description: interfaing with the proximity sensor
  */
 
-#define ISR_PIN 4
+#define PROX_ECHO_PIN 4
 #define PROX_TRIGGER_PIN 5//proximity sensor's trigger pin
 
 
