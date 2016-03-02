@@ -4,19 +4,20 @@
  */
 
 #include "cMotorDriver.h"
+#include <iostream>
 
 cMotorDriver::cMotorDriver(cPwmBoard* pPwmBoardInstance)
 {
 	pPwmBoard = pPwmBoardInstance;
+	pPwmBoard->setFreq(1000);
 	pPwmBoard->setDrive(TOTEM_POLE);
-	//pPwmBoard->setFreq( );		TODO!!
 	pPwmBoard->setPwmAll(50);
 }
 
 // Choose a motor to set to a speed between -50ish and 50ish (??)
-void cMotorDriver::setMotorSpeed(MOTOR_T motor, int speed)
+void cMotorDriver::setMotorSpeed(MOTORS_T motor, int speed)
 {
-	duty = speed + 50;
+	int duty = speed + 50;
 	if(duty < 2) 		duty = 2;
 	else if(duty > 98) 	duty = 98;
 
@@ -35,5 +36,6 @@ void cMotorDriver::setMotorSpeed(MOTOR_T motor, int speed)
 		pPwmBoard->setPwm(PWM_6,duty);
 		pPwmBoard->setPwmInv(PWM_7,duty);
 	default:
-		std::cerr << "Invalid motor being set!" << endl;
+		std::cerr << "Invalid motor being set!" << std::endl;
+	}
 }

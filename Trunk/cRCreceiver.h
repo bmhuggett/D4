@@ -22,6 +22,8 @@ class cRCreceiver
 public:
 	cRCreceiver();
 	std::pair<int, int> getInputMovementSpeed(void);
-	int 				getInputRotationSpeed(void);};
+	int 				getInputRotationSpeed(void);
+	bool 				queryCVMode(void);
+};
 
 #endif

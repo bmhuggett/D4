@@ -9,15 +9,14 @@ int main(void)
 
 	cRCreceiver my_RC;
 	std::pair<int, int> vel(0,0);
-	int rot = 0;
 
-	cPWMBoard my_PWM;
+	cPwmBoard my_PWM;
 
 	cMotorDriver my_motors(&my_PWM);
 
 	while(1)
 	{
 		vel = my_RC.getInputMovementSpeed();
-		setMotorSpeed(MOTOR_A, vel.first/10);
+		my_motors.setMotorSpeed(MOTOR_A, vel.first/10);
 	}
 }

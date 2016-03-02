@@ -7,6 +7,7 @@
 #include "cRCreceiver.h"
 
 #define RC_PW_OFFSET 1500
+#define CV_MODE_THRESHOLD 300	// Between 0 and 500
 //#define RC_DEBUG //Comment out to disable debug
 
 
@@ -25,6 +26,9 @@ cRCreceiver::cRCreceiver()
 	wiringPiISR(RC_RHS_UPDOWN_PIN, 	  INT_EDGE_BOTH, &startStopR_UDTimer);
 	wiringPiISR(RC_LHS_LEFTRIGHT_PIN, INT_EDGE_BOTH, &startStopL_LRTimer);
 	wiringPiISR(RC_LHS_UPDOWN_PIN, 	  INT_EDGE_BOTH, &startStopL_UDTimer);
+
+	for(int i = 0; i < RC_maximum_channels; i++)	PWs_in_us[i] = RC_PW_OFFSET;
+
 	#ifdef RC_DEBUG
     std::cout<<"RC | Class instantiated on pins "<<RC_RHS_LEFTRIGHT_PIN<<", "<<RC_RHS_UPDOWN_PIN<<", "RC_LHS_LEFTRIGHT_PIN<<", "RC_LHS_UPDOWN_PIN<<std::endl;
     #endif
@@ -47,6 +51,15 @@ int cRCreceiver::getInputRotationSpeed(void)
 	int x = PWs_in_us[RC_LHS_LEFTRIGHT_PIN] - RC_PW_OFFSET;
 
 	return x;
+}
+
+// Returns whether or not the left stick is all the way forward.
+bool queryCVMode(void)
+{
+	int x = PWs_in_us[RC_LHS_UPDOWN_PIN] - RC_PW_OFFSET;
+
+	if(x > CV_MODE_THRESHOLD)	return true;
+	else						return false;
 }
 
 
