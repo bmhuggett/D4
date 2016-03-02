@@ -42,6 +42,7 @@ class cPwmBoard
 public:
 	cPwmBoard();
 	int setPwm(int reg, float duty);	//Set's the PWM of reg with a duty% duty cycle
+	int kill(int reg);
 	int setPwmInv(int reg, float duty);	//Opposite signal to setPwm (so 100-duty duty cycle)
 	int setPwmAll(float duty);			//Similar in effect to setPwm on all channels
 	int setDrive(int mode);				//Sets drive to either Open Drain or Totem Pole (see defines)

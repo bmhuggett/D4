@@ -112,7 +112,7 @@ int cPwmBoard::setPwmInv(int reg, float duty)
         std::cout<<"PWM | Inverted PWM write failed ("<<std::hex<< reg+2 <<std::dec<<")"<<std::endl;
         #endif
         return -1;
-    }+
+    }
     if(wiringPiI2CWriteReg8(pwmFd,reg+3,0x0F)<0)
     {
         #ifdef PWM_DEBUG
@@ -121,6 +121,50 @@ int cPwmBoard::setPwmInv(int reg, float duty)
         return -1;
     }
     return 0;
+}
+
+int cPwmBoard::kill(int reg)
+{
+#ifdef PWM_DEBUG
+	std::cout << "PWM | Killing " << std::hex << reg << std::dec << std::endl;
+#endif
+	if (pwmFd == -1)
+	{
+#ifdef PWM_DEBUG
+		std::cout << "PWM | Attempted to write to non-initalised PWM board";
+#endif
+		return -1;
+	}
+
+	if (wiringPiI2CWriteReg8(pwmFd, reg, 0)<0)
+	{
+#ifdef PWM_DEBUG
+		std::cout << "PWM | PWM write failed (" << std::hex << reg << std::dec << ")" << std::endl;
+#endif
+		return -1;
+	}
+	if (wiringPiI2CWriteReg8(pwmFd, reg + 1, 0)<0)
+	{
+#ifdef PWM_DEBUG
+		std::cout << "PWM | PWM write failed (" << std::hex << reg + 1 << std::dec << ")" << std::endl;
+#endif
+		return -1;
+	}
+	if (wiringPiI2CWriteReg8(pwmFd, reg + 2, 0)<0)
+	{
+#ifdef PWM_DEBUG
+		std::cout << "PWM | PWM write failed (" << std::hex << reg + 2 << std::dec << ")" << std::endl;
+#endif
+		return -1;
+	}
+	if (wiringPiI2CWriteReg8(pwmFd, reg + 3, 0x10)<0)
+	{
+#ifdef PWM_DEBUG
+		std::cout << "PWM | PWM write failed (" << std::hex << reg + 3 << std::dec << ")" << std::endl;
+#endif
+		return -1;
+	}
+	return 0;
 }
 
 int cPwmBoard::setPwmAll(float duty)
@@ -209,7 +253,6 @@ int cPwmBoard::setFreq(float freq)
         #endif
         return -1;
     }
-    return 0;
 
     if(wiringPiI2CWriteReg8(pwmFd,MODE1,0x01))          //Wake the device
     {
@@ -217,4 +260,5 @@ int cPwmBoard::setFreq(float freq)
         std::cout<<"PWM | Waking device failed (MODE1)"<<std::endl;
         #endif
     }
+    return 0;
 }

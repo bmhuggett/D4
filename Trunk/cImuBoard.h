@@ -57,9 +57,6 @@ public:
 	float roll;
 };
 
-extern cImuBoard* pImuPtr;	//Points to the cImuBoard class instance, 
-							//	for use by the loop
-
 void *imuLoop (void *dummy);	//Loop function
 
 #endif

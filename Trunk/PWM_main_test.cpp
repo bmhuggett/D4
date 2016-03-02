@@ -15,6 +15,12 @@ int main()
 		std::cout<<"Setting to "<<std::dec<<duty<<std::endl;
 		PWMBOARD.setPwm(PWM_0,duty);
 		PWMBOARD.setPwmInv(PWM_1,duty);
+		PWMBOARD.setPwm(PWM_2,duty);
+		PWMBOARD.setPwmInv(PWM_3,duty);
+		PWMBOARD.setPwm(PWM_4,duty);
+		PWMBOARD.setPwmInv(PWM_5,duty);
+		PWMBOARD.setPwm(PWM_6,duty);
+		PWMBOARD.setPwmInv(PWM_7,duty);
 	}
 	return 0;
 }
