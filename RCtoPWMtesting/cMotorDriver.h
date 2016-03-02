@@ -17,7 +17,7 @@ class cMotorDriver
 {
 public:
 	cMotorDriver(cPwmBoard* pPwmBoardInstance);
-	setMotorSpeed(MOTOR_T motor, int speed);
+	void setMotorSpeed(MOTORS_T motor, int speed);
 private:
 	cPwmBoard* pPwmBoard;
 };
