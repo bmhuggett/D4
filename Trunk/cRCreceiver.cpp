@@ -7,6 +7,7 @@
 #include "cRCreceiver.h"
 
 #define RC_PW_OFFSET 1500
+#define CV_MODE_THRESHOLD 300	// Between 0 and 500
 //#define RC_DEBUG //Comment out to disable debug
 
 
@@ -50,6 +51,15 @@ int cRCreceiver::getInputRotationSpeed(void)
 	int x = PWs_in_us[RC_LHS_LEFTRIGHT_PIN] - RC_PW_OFFSET;
 
 	return x;
+}
+
+// Returns whether or not the left stick is all the way forward.
+bool queryCVMode(void)
+{
+	int x = PWs_in_us[RC_LHS_UPDOWN_PIN] - RC_PW_OFFSET;
+
+	if(x > CV_MODE_THRESHOLD)	return true;
+	else						return false;
 }
 
 

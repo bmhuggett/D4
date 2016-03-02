@@ -43,6 +43,8 @@ int main()
 
     while(1)
     {
+        //if(queryCVMode())   cvMode();     //TODO: Work out how to integrate this with the control loop properly.
+
         vel = my_RC.getInputMovementSpeed();
         rot = my_RC.getInputRotationSpeed();
 
@@ -51,8 +53,6 @@ int main()
         my_motors.setMotorSpeed(MOTOR_C, (rot/ROTATION_DIVISOR + vel.second)/MOTOR_DRIVER_DIVISOR);
         my_motors.setMotorSpeed(MOTOR_D, (rot/ROTATION_DIVISOR - vel.second)/MOTOR_DRIVER_DIVISOR);
     }
-
-    //cvMode();
 
     return 0;
 }
