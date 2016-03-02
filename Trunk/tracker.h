@@ -4,6 +4,10 @@
  * Reference: modifcation of Kyle Hounslow's objectTrackingTutorial.cpp
  * https://raw.githubusercontent.com/kylehounslow/opencv-tuts/master/object-tracking-tut/objectTrackingTut.cpp
  */
+
+#ifndef TRACKER_H
+#define TRACKER_H
+
 #include <opencv2/core/core.hpp>
 
 
@@ -35,3 +39,5 @@ void drawObject(int x, int y,Mat &frame);//need I say more?
 void morphOps(Mat &thresh);///morphological operation to reduse noise from image
 float trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed);//find objects from binary image, retunes the radius of the minimum enclosing circle and wirte the coordinates into &x and &y
 void cvMode(void);//call this function to enter computer vision mode
+
+#endif

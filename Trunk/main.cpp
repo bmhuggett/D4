@@ -4,8 +4,6 @@
 #include <prox.h>
 #include <tracker.h>
 
-using namespace std;
-
 
 PI_THREAD(music)
 {
@@ -17,7 +15,7 @@ int main()
 {
     if(wiringPiSetup()<0)
     {
-        cout<< "WiringPi Setup Failed"<<endl;
+        std::cout << "WiringPi Setup Failed" << std::endl;
         return -1;
     }
 
@@ -34,6 +32,5 @@ int main()
     */
     cvMode();
 
-    cout<<"test"<<endl;
     return 0;
 }

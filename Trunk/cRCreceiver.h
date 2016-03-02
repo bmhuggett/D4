@@ -3,7 +3,9 @@
  * Description: Class cRCreceiver is used for getting the inputs from the user from the RC receiver module.
  */
 
-#include <tuple>
+#ifndef CRCRECEIVER_H
+#define CRCRECEIVER_H
+
 
 
 typedef const enum RC_PINS_T 
@@ -20,5 +22,6 @@ class cRCreceiver
 public:
 	cRCreceiver();
 	std::pair<int, int> getInputMovementSpeed(void);
-	int 				getInputRotationSpeed(void);
-};
+	int 				getInputRotationSpeed(void);};
+
+#endif

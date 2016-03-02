@@ -6,8 +6,6 @@
 #include <iostream>
 #include <wiringPi.h>
 
-using namespace std;
-
 #define LR_PIN 0
 
 void startstopLRtimer(void);
@@ -24,7 +22,7 @@ int main(void)
 
 	while(1)
 	{
-		cout << "LR pulse width is " << RC_PWs_in_us[LR_PIN] << "us." << endl;
+		std::cout << "LR pulse width is " << RC_PWs_in_us[LR_PIN] << "us." << std::endl;
 		delay(100);
 	};
 }
