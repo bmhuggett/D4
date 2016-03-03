@@ -17,8 +17,39 @@
 using namespace cv;
 using namespace std;
 
+const int CV_MODE_PIN =11;
 
-string intToString(int number)
+//HSV in Lab
+
+const int H_MIN = 0;
+const int H_MAX = 96;
+const int S_MIN = 130;
+const int S_MAX = 214;
+const int V_MIN = 177;
+const int V_MAX = 256;
+
+/*
+//HSV in Halls
+const int H_MIN = 144;
+const int H_MAX = 195;
+const int S_MIN = 117;
+const int S_MAX = 256;
+const int V_MIN = 87;
+const int V_MAX = 256;
+*/
+
+const int FRAME_WIDTH = 640;
+const int FRAME_HEIGHT = 480;
+
+//max number of objects to be detected in frame
+const int MAX_NUM_OBJECTS=50;
+//minimum and maximum object area
+const int MIN_OBJECT_AREA = 20*20;
+const int MAX_OBJECT_AREA = FRAME_HEIGHT*FRAME_WIDTH/1.5;
+//names that will appear at the top of each window
+
+
+string tracker::intToString(int number)
 {
 
 
@@ -27,7 +58,7 @@ string intToString(int number)
     return ss.str();
 }
 
-void drawObject(int x, int y,Mat &frame)
+void tracker::drawObject(int x, int y,Mat &frame)
 {
     //use some of the openCV drawing functions to draw crosshairs
     //on your tracked image!
@@ -47,7 +78,7 @@ void drawObject(int x, int y,Mat &frame)
 
     putText(frame,intToString(x)+","+intToString(y),Point(x,y+30),1,1,Scalar(0,255,0),2);
 }
-void morphOps(Mat &thresh)
+void tracker::morphOps(Mat &thresh)
 {
 
     //create structuring element that will be used to "dilate" and "erode" image.
@@ -69,7 +100,7 @@ void morphOps(Mat &thresh)
 
 }
 
-float trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed)
+int tracker::trackFilteredObject(int &x, int &y,float &radius, Mat threshold, Mat &cameraFeed)
 {
 
     Mat temp;
@@ -81,7 +112,6 @@ float trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed)
     findContours(temp,contours,hierarchy,CV_RETR_CCOMP,CV_CHAIN_APPROX_SIMPLE );
     //use moments method to find our filtered object
     double refArea = 0;
-    float radius  = 0;
     bool objectFound = false;
     int mainObject =0;
     Point2f centerOfEnclosingCircle;
@@ -120,7 +150,7 @@ float trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed)
                 drawObject(x,y,cameraFeed);//draw object location on screen
 
                 cout<<"radius: "<<radius<<endl;
-                return radius;
+                return 1;
             }
 
         }else putText(cameraFeed,"TOO MUCH NOISE! ADJUST FILTER",Point(0,50),1,2,Scalar(0,0,255),2);
@@ -128,7 +158,7 @@ float trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed)
     return -1;
 }
 
-void cvMode(void)
+void tracker::cvMode(void)
 {
 //some boolean variables for different functionality within this
 //program
@@ -141,6 +171,7 @@ Mat cameraFeed;
 Mat threshold;
 //x and y values for the location of the object
 int x=0, y=0;
+float radius;
 //create slider bars for HSV filtering
 //video capture object to acquire webcam feed
 VideoCapture capture;
@@ -168,20 +199,23 @@ while(waitKey(30) != 'q')//change this to digitalRead(CV_MODE_PIN) later
      //pass in thresholded frame to our object tracking function
      //this function will return the x and y coordinates of the
      //filtered object
-     float radius = trackFilteredObject(x,y,threshold,cameraFeed);
+      if(trackFilteredObject(x,y,radius,threshold,cameraFeed)==1)
+      {
+          if(x<213 && x>0)//Turn Left condition
+              {
 
-     /*
-     ADD MOTER ONTAL FUCTIONS HERE
-     if(x<213? && x>0)
-     {
-        do somethig
-     }
-     so on...
-     */
-     if(((x-radius)<0 ||(x+radius)>640 ||(y-radius)<0 || (y+radius)>480))//partialy out of frame condition
-         {
-           cout<<"OUT OF FRAME"<<endl;
-         }
+                cout<<"Trun Left"<<endl;
+              }
+         if(x>427 && x<640)//Turn Right condition
+              {
+                cout<<"Turn Right"<<endl;
+              }
+
+         if(((x-radius)<0 ||(x+radius)>640 ||(y-radius)<0 || (y+radius)>480))//partialy out of frame condition
+            {
+                cout<<"OUT OF FRAME"<<endl;
+            }
+      }
       //show frames
       imshow("Tracker",cameraFeed);//for debuging
       imshow("Binary",threshold);//for debuging
