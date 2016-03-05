@@ -10,7 +10,7 @@
 #define RC_PW_OFFSET 1500
 #define CV_MODE_THRESHOLD 300	// Between 0 and 500
 
-//#define RC_DEBUG //Comment out to disable debug
+#define RC_DEBUG //Comment out to disable debug
 
 
 unsigned int start_times[3][RC_maximum_channels];

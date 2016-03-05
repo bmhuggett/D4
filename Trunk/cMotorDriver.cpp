@@ -6,11 +6,12 @@
 #include "cMotorDriver.h"
 #include <iostream>
 
-#define MOTOR_DEBUG
+//#define MOTOR_DEBUG
 
 #define PWM_FREQ 70
-#define INPUT_DEADZONE 10
-#define DUTY_CYCLE_DIVISOR 2
+#define INPUT_DEADZONE_OFF 10
+#define INPUT_DEADZONE_LOW 30
+#define DUTY_CYCLE_DIVISOR 5
 
 int current_duties[4];
 
@@ -35,13 +36,15 @@ void cMotorDriver::setMotorSpeed(MOTORS_T motor, int speed)
 	int input_duty;
 
 	// Scale input to give more meaningful output.
-	if      (speed <-INPUT_DEADZONE)	input_duty=0;//duty = (speed+50) *7/9;
-	else if (speed > INPUT_DEADZONE)	input_duty =100;// = (speed-5) *7/9 + 65;
-	else 								input_duty = 50;
+	if      (speed <-INPUT_DEADZONE_LOW)	input_duty=0;
+	else if (speed <-INPUT_DEADZONE_OFF)	input_duty = 15;
+	else if (speed > INPUT_DEADZONE_LOW)	input_duty =100;
+	else if (speed > INPUT_DEADZONE_OFF)	input_duty = 85;
+	else 					input_duty = 50;
 
 	// Avoid maximing out duty cycle.
-	//if     (input_duty < 2) 	input_duty = 2;
-	//else if(input_duty >98) 	input_duty = 98;
+	//if     (input_duty < 0) 	input_duty = 0;
+	//else if(input_duty >100) 	input_duty = 100;
 	
 	if (input_duty!=50)
 	{	
