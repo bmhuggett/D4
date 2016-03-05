@@ -6,15 +6,24 @@
 #include "cMotorDriver.h"
 #include <iostream>
 
-//#define MOTOR_DEBUG
+#define MOTOR_DEBUG
+
+#define PWM_FREQ 70
+#define INPUT_DEADZONE 10
+#define DUTY_CYCLE_DIVISOR 2
+
+int current_duties[4];
 
 cMotorDriver::cMotorDriver(cPwmBoard* pPwmBoardInstance)
 {
 	#ifdef MOTOR_DEBUG
 	std::cout<<"MOTOR | Class Instantiated"<<std::endl;
 	#endif
+
+	for(int i=0;i<4;i++) current_duties[i]=50;
+
 	pPwmBoard = pPwmBoardInstance;
-	pPwmBoard->setFreq(70);
+	pPwmBoard->setFreq(PWM_FREQ);
 	pPwmBoard->setDrive(TOTEM_POLE);
 	pPwmBoard->setPwmAll(50);
 }
@@ -22,50 +31,75 @@ cMotorDriver::cMotorDriver(cPwmBoard* pPwmBoardInstance)
 // Choose a motor to set to a speed between -50ish and 50ish (??)
 void cMotorDriver::setMotorSpeed(MOTORS_T motor, int speed)
 {
-	int duty;
+	int current_duty = current_duties[motor];
+	int input_duty;
 
 	// Scale input to give more meaningful output.
-	if      (speed <-5)	duty = (speed+50) *7/9;
-	else if (speed > 5)	duty = (speed-5) *7/9 + 65;
-	else 				duty = 50;
+	if      (speed <-INPUT_DEADZONE)	input_duty=0;//duty = (speed+50) *7/9;
+	else if (speed > INPUT_DEADZONE)	input_duty =100;// = (speed-5) *7/9 + 65;
+	else 								input_duty = 50;
 
 	// Avoid maximing out duty cycle.
-	if     (duty < 2) 	duty = 2;
-	else if(duty >98) 	duty = 98;
-		
+	//if     (input_duty < 2) 	input_duty = 2;
+	//else if(input_duty >98) 	input_duty = 98;
+	
+	if (input_duty!=50)
+	{	
+		current_duty = (int)( ((float)input_duty - (float)current_duty)/(float)DUTY_CYCLE_DIVISOR + (float)current_duty  );
+	}
+	else
+	{
+		current_duty=50;
+	}
+	current_duties[motor]=current_duty;
+	#ifdef MOTOR_DEBUG
+	std::cout<<"MOTOR | Requested Duty is "<<current_duty<<std::endl;
+	#endif
 	switch(motor)
 	{
 	case MOTOR_A: 
-		pPwmBoard->setPwm(PWM_0,duty);
-		pPwmBoard->setPwmInv(PWM_1,duty);
-		if(duty == 50)		
+		if(current_duty !=50)
+		{
+			pPwmBoard->setPwm(PWM_0, current_duty);
+			pPwmBoard->setPwmInv(PWM_1, current_duty);
+		}
+		else
 		{
 			pPwmBoard->kill(PWM_0);
 			pPwmBoard->kill(PWM_1);
-		}		
+		}
 		break;
 	case MOTOR_B:
-		pPwmBoard->setPwm(PWM_2,duty);
-		pPwmBoard->setPwmInv(PWM_3,duty);
-		if(duty == 50)		
+		if(current_duty!=50)
+		{
+			pPwmBoard->setPwm(PWM_2, current_duty);
+			pPwmBoard->setPwmInv(PWM_3, current_duty);
+		}
+		else
 		{
 			pPwmBoard->kill(PWM_2);
 			pPwmBoard->kill(PWM_3);
-		}		
-		break;		
+		}
+		break;
 	case MOTOR_C:
-		pPwmBoard->setPwm(PWM_4,duty);
-		pPwmBoard->setPwmInv(PWM_5,duty);
-		if(duty == 50)		
+		if(current_duty!=50)
+		{
+			pPwmBoard->setPwm(PWM_4, current_duty);
+			pPwmBoard->setPwmInv(PWM_5, current_duty);
+		}
+		else		
 		{
 			pPwmBoard->kill(PWM_4);
 			pPwmBoard->kill(PWM_5);
 		}		
 		break;
 	case MOTOR_D:
-		pPwmBoard->setPwm(PWM_6,duty);
-		pPwmBoard->setPwmInv(PWM_7,duty);
-		if(duty == 50)		
+		if(current_duty!=50)
+		{
+			pPwmBoard->setPwm(PWM_6, current_duty);
+			pPwmBoard->setPwmInv(PWM_7, current_duty);
+		}
+		else		
 		{
 			pPwmBoard->kill(PWM_6);
 			pPwmBoard->kill(PWM_7);
