@@ -4,7 +4,7 @@
 #include "cRCreceiver.h"
 #include "cProx.h"
 
-#define ROTATION_DIVISOR     5
+#define ROTATION_DIVISOR     2
 #define MOTOR_DRIVER_DIVISOR 10
 
 /*PI_THREAD(music)
@@ -50,7 +50,7 @@ int main()
         rot = my_RC.getInputRotationSpeed();
 	//vel.first = 0;
 	//vel.second = 500;
-	rot = 0;
+	//rot = 0;
         my_motors.setMotorSpeed(MOTOR_A, (rot/ROTATION_DIVISOR + vel.first)/MOTOR_DRIVER_DIVISOR);
         my_motors.setMotorSpeed(MOTOR_B, (rot/ROTATION_DIVISOR - vel.first)/MOTOR_DRIVER_DIVISOR);
         my_motors.setMotorSpeed(MOTOR_C, (rot/ROTATION_DIVISOR + vel.second)/MOTOR_DRIVER_DIVISOR);
