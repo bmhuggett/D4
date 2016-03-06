@@ -82,6 +82,7 @@ int cImuBoard::wake()
 	//Write 0 to the Sleep bit in PWR_MGMT_1
 
 	int regval;
+	piLock(0);
 	if (regval = wiringPiI2CReadReg8(imuFd,PWR_MGMT_1)<0)
 	{
 		std::cout<<"IMU | Failed to read sleep register (PWR_MGMT_1)"<<std::endl;
@@ -103,14 +104,18 @@ int cImuBoard::wake()
 
         return -1;
     }
+    piUnlock(0);
+    return 0;
 }
 
 int cImuBoard::accelXRaw()
 {
 	int low;
 	int high;
+	piLock(0);
 	low 	= wiringPiI2CReadReg8(imuFd, ACCEL_XOUT_L);
 	high 	= wiringPiI2CReadReg8(imuFd, ACCEL_XOUT_H);
+	piUnlock(0);
 	if (low<0)
 	{
 		#ifdef IMU_DEBUG
@@ -149,8 +154,10 @@ int cImuBoard::accelYRaw()
 {
 	int low;
 	int high;
+	piLock(0);
 	low = wiringPiI2CReadReg8(imuFd,ACCEL_YOUT_L);
 	high = wiringPiI2CReadReg8(imuFd,ACCEL_YOUT_H);
+	piUnlock(0);
 
 	if (low<0)
 	{
@@ -198,8 +205,10 @@ int cImuBoard::accelZRaw()
 
 	int low;
 	int high;
+	piLock(0);
 	low = wiringPiI2CReadReg8(imuFd,ACCEL_ZOUT_L);
 	high = wiringPiI2CReadReg8(imuFd,ACCEL_ZOUT_H);
+	piUnlock(0);
 
 	if (low<0)
 	{
@@ -247,8 +256,10 @@ int cImuBoard::tempRaw()
 
 	int low;
 	int high;
+	piLock(0);
 	low = wiringPiI2CReadReg8(imuFd,TEMP_OUT_L);
 	high = wiringPiI2CReadReg8(imuFd,TEMP_OUT_H);
+	piUnlock(0);
 
 	if (low<0)
 	{
@@ -296,8 +307,10 @@ int cImuBoard::gyroXRaw()
 
 	int low;
 	int high;
+	piLock(0);
 	low = wiringPiI2CReadReg8(imuFd,GYRO_XOUT_L);
 	high = wiringPiI2CReadReg8(imuFd,GYRO_XOUT_H);
+	piUnlock(0);
 
 	if (low<0)
 	{
@@ -345,8 +358,10 @@ int cImuBoard::gyroYRaw()
 
 	int low;
 	int high;
+	piLock(0);
 	low = wiringPiI2CReadReg8(imuFd,GYRO_YOUT_L);
 	high = wiringPiI2CReadReg8(imuFd,GYRO_YOUT_H);
+	piUnlock(0);
 
 	if (low<0)
 	{
@@ -394,8 +409,10 @@ int cImuBoard::gyroZRaw()
 
 	int low;
 	int high;
+	piLock(0);
 	low = wiringPiI2CReadReg8(imuFd,GYRO_ZOUT_L);
 	high = wiringPiI2CReadReg8(imuFd,GYRO_ZOUT_H);
+	piUnlock(0);
 
 	if (low<0)
 	{
@@ -476,6 +493,7 @@ float cImuBoard::gyroZ()
 int cImuBoard::setAccelRange(eAccelRange range)
 {
 	int regval;
+	piLock(0);
 	if (regval = wiringPiI2CReadReg8(imuFd,ACCEL_CONFIG)<0)
 	{
 		#ifdef IMU_DEBUG
@@ -488,6 +506,7 @@ int cImuBoard::setAccelRange(eAccelRange range)
 
 		return -1;
 	}
+	piUnlock(0);
 
 	//Translates ranges into bit patterns
 	switch (range)
@@ -545,6 +564,7 @@ int cImuBoard::setAccelRange(eAccelRange range)
 			accelMul = 2048;
 			break;
 	}
+	piLock(0);
 	if(wiringPiI2CWriteReg8(imuFd,ACCEL_CONFIG,regval)<0)
     {
     	#ifdef IMU_DEMUG
@@ -557,11 +577,13 @@ int cImuBoard::setAccelRange(eAccelRange range)
 
         return -1;
     }
+    piUnlock(0);
 }
 
 int cImuBoard::setGyroRange(eGyroRange range)
 {
 	int regval;
+	piLock(0);
 	if (regval = wiringPiI2CReadReg8(imuFd, GYRO_CONFIG)<0)
 	{
 		#ifdef IMU_DEBUG
@@ -574,7 +596,7 @@ int cImuBoard::setGyroRange(eGyroRange range)
 
 		return -1;
 	}
-
+	piUnlock(0);
 	//Translates ranges into bit patterns
 	switch (range)
 	{
@@ -635,6 +657,7 @@ int cImuBoard::setGyroRange(eGyroRange range)
 		break;
 	}
 
+	piLock(0);
 	if (wiringPiI2CWriteReg8(imuFd, GYRO_CONFIG, regval)<0)
 	{
 		#ifdef IMU_DEBUG
@@ -647,6 +670,7 @@ int cImuBoard::setGyroRange(eGyroRange range)
 
 		return -1;
 	}
+	piUnlock(0);
 }
 
 void cImuBoard::zero()

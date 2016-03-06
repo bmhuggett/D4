@@ -20,5 +20,5 @@ public:
     void drawObject(int x, int y,Mat &frame);//need I say more?
     void morphOps(Mat &thresh);///morphological operation to reduse noise from image
     int trackFilteredObject(int &x, int &y,float &radius, Mat threshold, Mat &cameraFeed);//find objects from binary image, retunes the radius of the minimum enclosing circle and wirte the coordinates into &x and &y
-    void cvMode(void);//call this function to enter computer vision mode
+    char cvMode(void);//call this function to enter computer vision mode
 };
