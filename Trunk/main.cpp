@@ -17,7 +17,7 @@
 int main()
 {
     #ifdef LOGGING_FULL
-    if(!ouputfile.is_open())
+    if(!logfile.is_open())
     {
         std::cout << "Log file failed to open" << std::endl;
         return -1;
