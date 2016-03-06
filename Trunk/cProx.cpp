@@ -142,7 +142,7 @@ void cProx::proxTrigger(PROX_SENSORS_T sensor)
 // ISR for any sensor, which is handed the necessary sensor in the specific ISRs below.
 static void startStopGenericTimer(PROX_SENSORS_T sensor)
 {
-    if(digitalRead(sensor*2 + 5) == HIGH)    //Rising edge (converts sensor to ECHO_PIN the lazy way)
+    if(digitalRead(sensor*2 + 4) == HIGH)    //Rising edge (converts sensor to ECHO_PIN the lazy way)
     {
         start_times[ looper[sensor] ][sensor] = micros();
     }
