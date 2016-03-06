@@ -10,8 +10,6 @@
 //#define MOTOR_DEBUG
 
 #define PWM_FREQ 70
-#define INPUT_DEADZONE_OFF 10
-#define INPUT_DEADZONE_LOW 30
 #define DUTY_CYCLE_DIVISOR 5
 
 int current_duties[4];
