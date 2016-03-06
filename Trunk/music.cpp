@@ -3,7 +3,7 @@
 #include <signal.h>
 void playSound(std::string file)
 {
-	std::string cmd = "exec ./play.sh ";
+    std::string cmd = "omxplayer -o local ";
 	cmd += file;
 	signal(SIGCHLD,SIG_IGN);
 	int pid = fork();

@@ -158,7 +158,7 @@ int tracker::trackFilteredObject(int &x, int &y,float &radius, Mat threshold, Ma
     return -1;
 }
 
-void tracker::cvMode(void)
+char tracker::cvMode(void)
 {
 //some boolean variables for different functionality within this
 //program
@@ -183,6 +183,7 @@ capture.set(CV_CAP_PROP_FRAME_WIDTH,FRAME_WIDTH);
 capture.set(CV_CAP_PROP_FRAME_HEIGHT,FRAME_HEIGHT);
 //start an infinite loop where webcam feed is copied to cameraFeed matrix
 //all of our operations will be performed within this loop
+
 cout<<"Prass 'q' To Quit"<<endl;
 while(waitKey(30) != 'q')//change this to digitalRead(CV_MODE_PIN) later
     {
@@ -205,19 +206,35 @@ while(waitKey(30) != 'q')//change this to digitalRead(CV_MODE_PIN) later
               {
 
                 cout<<"Trun Left"<<endl;
+
+                //return 'l';
               }
          if(x>427 && x<640)//Turn Right condition
               {
                 cout<<"Turn Right"<<endl;
+
+                //return 'r';
               }
 
-         if(((x-radius)<0 ||(x+radius)>640 ||(y-radius)<0 || (y+radius)>480))//partialy out of frame condition
+         if(!((x-radius)<0 ||(x+radius)>640 ||(y-radius)<0 || (y+radius)>480))//not partialy out of frame condition
             {
-                cout<<"OUT OF FRAME"<<endl;
+                cout<<"NOT OUT OF FRAME"<<endl;
+                /*
+                 if(radius<     )
+                 {
+                   return 'f'
+                 }
+                 else if(radius >      )
+                 {
+                    return 'b'
+                 }
+                 */
             }
+         return 1;
       }
       //show frames
       imshow("Tracker",cameraFeed);//for debuging
       imshow("Binary",threshold);//for debuging
     }
+return 0;
 }
