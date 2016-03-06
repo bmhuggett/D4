@@ -45,12 +45,21 @@ cImuBoard::cImuBoard()
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU | Class instantiated"<<std::endl;
 	#endif
+
+    #ifdef LOGGING_FULL
+    logfile << "IMU | Class instantiated" << std::endl;
+    #endif
+
 	imuFd = -1;
 	if(setup() < 0)
 	{
 		#ifdef IMU_DEBUG
 		std::cout<<"IMU | Failed to initialise IMU board I2C"<<std::endl;
 		#endif
+
+	    #ifdef LOGGING_FULL
+    	logfile << "IMU | Failed to initialise IMU board I2C" << std::endl;
+    	#endif
 	}
 	zero();
 	pImuPtr = this;	//Point the cImuBoard pointer here so the loop can use the
@@ -76,12 +85,22 @@ int cImuBoard::wake()
 	if (regval = wiringPiI2CReadReg8(imuFd,PWR_MGMT_1)<0)
 	{
 		std::cout<<"IMU | Failed to read sleep register (PWR_MGMT_1)"<<std::endl;
+
+	    #ifdef LOGGING_FULL
+    	logfile << "IMU | Failed to read sleep register (PWR_MGMT_1)" << std::endl;
+    	#endif
+
 		return -1;
 	}
 	regval = bitLow(6,regval);
 	if(wiringPiI2CWriteReg8(imuFd,PWR_MGMT_1,regval)<0)
     {
         std::cout<<"IMU | Failed to write to sleep register (PWR_MGMT_1)"<<std::endl;   //Write zero to start value lower byte
+
+	    #ifdef LOGGING_FULL
+    	logfile << "IMU | Failed to write to sleep register (PWR_MGMT_1)" << std::endl;
+    	#endif
+
         return -1;
     }
 }
@@ -97,6 +116,11 @@ int cImuBoard::accelXRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (ACCEL_XOUT_L)" << std::endl;
 		#endif
+
+	    #ifdef LOGGING_FULL
+    	logfile << "IMU | Failed to read (ACCEL_XOUT_L)" << std::endl;
+    	#endif
+
 		return -1;
 	}
 	if (high<0)
@@ -104,11 +128,21 @@ int cImuBoard::accelXRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (ACCEL_XOUT_H)" << std::endl;
 		#endif
+
+	    #ifdef LOGGING_FULL
+    	logfile << "IMU | Failed to read (ACCEL_XOUT_H)" << std::endl;
+    	#endif
+
 		return -1;
 	}
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU | Accel X Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
 	#endif
+
+    #ifdef LOGGING_FULL
+	logfile << "IMU | Accel X Raw Data (Low | High)\t " << low << " | " << high << std::endl;
+	#endif
+
 	return combineRegSigned(high, low);
 }
 int cImuBoard::accelYRaw()
@@ -123,6 +157,11 @@ int cImuBoard::accelYRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (ACCEL_YOUT_L)" << std::endl;
 		#endif
+
+	    #ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (ACCEL_YOUT_L)" << std::endl;
+		#endif
+
 		return -1;
 	}
 	if (high<0)
@@ -130,10 +169,19 @@ int cImuBoard::accelYRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (ACCEL_YOUT_H)" << std::endl;
 		#endif
+
+	    #ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (ACCEL_YOUT_H)" << std::endl;
+		#endif
+
 		return -1;
 	}
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU | Accel Y Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
+	#endif
+
+    #ifdef LOGGING_FULL
+	logfile << "IMU | Accel Y Raw Data (Low | High)\t " << low << " | " << high << std::endl;
 	#endif
 
 	return combineRegSigned(high,low);
@@ -142,6 +190,10 @@ int cImuBoard::accelZRaw()
 {
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU accelZRaw"<<std::endl;
+	#endif
+
+    #ifdef LOGGING_FULL
+	logfile << "IMU accelZRaw" << std::endl;
 	#endif
 
 	int low;
@@ -154,6 +206,11 @@ int cImuBoard::accelZRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (ACCEL_ZOUT_L)" << std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (ACCEL_ZOUT_L)" << std::endl;
+		#endif
+
 		return -1;
 	}
 	if (high<0)
@@ -161,10 +218,19 @@ int cImuBoard::accelZRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (ACCEL_ZOUT_H)" << std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (ACCEL_ZOUT_H)" << std::endl;
+		#endif
+
 		return -1;
 	}
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU | Accel Z Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
+	#endif
+
+	#ifdef LOGGING_FULL
+	logfile << "IMU | Accel Z Raw Data (Low | High)\t " << low << " | " << high << std::endl;
 	#endif
 
 	return combineRegSigned(high,low);
@@ -173,6 +239,10 @@ int cImuBoard::tempRaw()
 {
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU tempRaw"<<std::endl;
+	#endif
+
+	#ifdef LOGGING_FULL
+	logfile << "IMU tempRaw" << std::endl;
 	#endif
 
 	int low;
@@ -185,6 +255,11 @@ int cImuBoard::tempRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (TEMP_OUT_L)" << std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (TEMP_OUT_L)" << std::endl;
+		#endif
+
 		return -1;
 	}
 	if (high<0)
@@ -192,10 +267,19 @@ int cImuBoard::tempRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (TEMP_OUT_H)" << std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (TEMP_OUT_H)" << std::endl;
+		#endif
+
 		return -1;
 	}
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU | Temp Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
+	#endif
+
+	#ifdef LOGGING_FULL
+	logfile << "IMU | Temp Raw Data (Low | High)\t " << low << " | " << high << std::endl;
 	#endif
 
 	return combineRegSigned(high,low);
@@ -204,6 +288,10 @@ int cImuBoard::gyroXRaw()
 {
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU gyroXRaw"<<std::endl;
+	#endif
+
+	#ifdef LOGGING_FULL
+	logfile << "IMU gyroXRaw" << std::endl;
 	#endif
 
 	int low;
@@ -216,6 +304,11 @@ int cImuBoard::gyroXRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (GYRO_XOUT_L)" << std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (GYRO_XOUT_L)" << std::endl;
+		#endif
+
 		return -1;
 	}
 	if (high<0)
@@ -223,10 +316,19 @@ int cImuBoard::gyroXRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (GYRO_XOUT_H)" << std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (GYRO_XOUT_H)" << std::endl;
+		#endif
+
 		return -1;
 	}
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU | Gyro X Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
+	#endif
+
+	#ifdef LOGGING_FULL
+	logfile << "IMU | Gyro X Raw Data (Low | High)\t " << low << " | " << high << std::endl;
 	#endif
 
 	return combineRegSigned(high,low);
@@ -235,6 +337,10 @@ int cImuBoard::gyroYRaw()
 {
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU gyroYRaw"<<std::endl;
+	#endif
+
+	#ifdef LOGGING_FULL
+	logfile << "IMU gyroYRaw" << std::endl;
 	#endif
 
 	int low;
@@ -247,6 +353,11 @@ int cImuBoard::gyroYRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (GYRO_YOUT_L)" << std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (GYRO_YOUT_L)" << std::endl;
+		#endif
+
 		return -1;
 	}
 	if (high<0)
@@ -254,10 +365,19 @@ int cImuBoard::gyroYRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (GYRO_YOUT_H)" << std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (GYRO_YOUT_H)" << std::endl;
+		#endif
+
 		return -1;
 	}
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU | Gyro Y Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
+	#endif
+
+	#ifdef LOGGING_FULL
+	logfile << "IMU | Gyro Y Raw Data (Low | High)\t " << low << " | " << high << std::endl;
 	#endif
 
 	return combineRegSigned(high,low);
@@ -266,6 +386,10 @@ int cImuBoard::gyroZRaw()
 {
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU gyroZRaw"<<std::endl;
+	#endif
+
+	#ifdef LOGGING_FULL
+	logfile << "IMU gyroZRaw" << std::endl;
 	#endif
 
 	int low;
@@ -278,6 +402,11 @@ int cImuBoard::gyroZRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (GYRO_ZOUT_L)" << std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (GYRO_ZOUT_L)" << std::endl;
+		#endif
+
 		return -1;
 	}
 	if (high<0)
@@ -285,10 +414,19 @@ int cImuBoard::gyroZRaw()
 		#ifdef IMU_DEBUG
 		std::cout << "IMU | Failed to read (GYRO_ZOUT_H)" << std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (GYRO_ZOUT_H)" << std::endl;
+		#endif
+
 		return -1;
 	}
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU | Gyro Z Raw Data (Low | High)\t "<<low<<" | "<<high<<std::endl;
+	#endif
+
+	#ifdef LOGGING_FULL
+	logfile << "IMU | Gyro Z Raw Data (Low | High)\t " << low << " | " << high << std::endl;
 	#endif
 
 	return combineRegSigned(high,low);
@@ -343,6 +481,11 @@ int cImuBoard::setAccelRange(eAccelRange range)
 		#ifdef IMU_DEBUG
 		std::cout<<"IMU | Failed to read (ACCEL_CONFIG)"<<std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (ACCEL_CONFIG)" << std::endl;
+		#endif
+
 		return -1;
 	}
 
@@ -353,6 +496,11 @@ int cImuBoard::setAccelRange(eAccelRange range)
 			#ifdef IMU_DEBUG
 			std::cout<<"IMU | Setting Accelerometer range to 2g"<<std::endl;
 			#endif
+
+			#ifdef LOGGING_FULL
+			logfile << "IMU | Setting Accelerometer range to 2g" << std::endl;
+			#endif
+
 			regval = bitLow(3,regval);
 			regval = bitLow(4,regval);
 			accelMul = 16384;
@@ -361,6 +509,11 @@ int cImuBoard::setAccelRange(eAccelRange range)
 			#ifdef IMU_DEBUG
 			std::cout<<"IMU | Setting Accelerometer range to 4g"<<std::endl;
 			#endif
+
+			#ifdef LOGGING_FULL
+			logfile << "IMU | Setting Accelerometer range to 4g" << std::endl;
+			#endif
+
 			regval = bitHigh(3,regval);
 			regval = bitLow(4,regval);
 			accelMul = 8192;
@@ -369,6 +522,11 @@ int cImuBoard::setAccelRange(eAccelRange range)
 			#ifdef IMU_DEBUG
 			std::cout<<"IMU | Setting Accelerometer range to 8g"<<std::endl;
 			#endif
+
+			#ifdef LOGGING_FULL
+			logfile << "IMU | Setting Accelerometer range to 8g" << std::endl;
+			#endif
+
 			regval = bitLow(3,regval);
 			regval = bitHigh(4,regval);
 			accelMul = 4096;
@@ -377,6 +535,11 @@ int cImuBoard::setAccelRange(eAccelRange range)
 			#ifdef IMU_DEBUG
 			std::cout<<"IMU | Setting Accelerometer range to 16g"<<std::endl;
 			#endif
+
+			#ifdef LOGGING_FULL
+			logfile << "IMU | Setting Accelerometer range to 16g" << std::endl;
+			#endif
+
 			regval = bitHigh(3,regval);
 			regval = bitHigh(4,regval);
 			accelMul = 2048;
@@ -387,6 +550,11 @@ int cImuBoard::setAccelRange(eAccelRange range)
     	#ifdef IMU_DEMUG
         std::cout<<"IMU | Write failed (ACCEL_CONFIG)"<<std::endl;   //Write zero to start value lower byte
         #endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Write failed (ACCEL_CONFIG)" << std::endl;
+		#endif
+
         return -1;
     }
 }
@@ -399,6 +567,11 @@ int cImuBoard::setGyroRange(eGyroRange range)
 		#ifdef IMU_DEBUG
 		std::cout<<"IMU | Failed to read (GYRO_CONFIG)"<<std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to read (GYRO_CONFIG)" << std::endl;
+		#endif
+
 		return -1;
 	}
 
@@ -409,40 +582,69 @@ int cImuBoard::setGyroRange(eGyroRange range)
 		#ifdef IMU_DEBUG
 		std::cout<<"IMU | Gyro Range set to 250"<<std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Gyro Range set to 250" << std::endl;
+		#endif
+
 		regval = bitLow(3, regval);
 		regval = bitLow(4, regval);
 		gyroMul = 131;
 		break;
+
 	case RANGE_500:
 		#ifdef IMU_DEBUG
 		std::cout<<"IMU | Gyro Range set to 500"<<std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Gyro Range set to 500" << std::endl;
+		#endif
+
 		regval = bitHigh(3, regval);
 		regval = bitLow(4, regval);
 		gyroMul = 65.5;
 		break;
+
 	case RANGE_1000:
 		#ifdef IMU_DEBUG
 		std::cout<<"IMU | Gyro Range set to 1000"<<std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Gyro Range set to 1000" << std::endl;
+		#endif
+
 		regval = bitLow(3, regval);
 		regval = bitHigh(4, regval);
 		gyroMul = 32.8;
 		break;
+
 	case RANGE_2000:
 		#ifdef IMU_DEBUG
 		std::cout<<"IMU | Gyro Range set to 2000"<<std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Gyro Range set to 2000" << std::endl;
+		#endif
+
 		regval = bitHigh(3, regval);
 		regval = bitHigh(4, regval);
 		gyroMul = 16.4;
 		break;
 	}
+
 	if (wiringPiI2CWriteReg8(imuFd, GYRO_CONFIG, regval)<0)
 	{
 		#ifdef IMU_DEBUG
 		std::cout<<"IMU | Failed to write (GYRO_CONFIG)"<<std::endl;
 		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to write (GYRO_CONFIG)" << std::endl;
+		#endif
+
 		return -1;
 	}
 }
@@ -459,12 +661,21 @@ int cImuBoard::beginLoop()
 	#ifdef IMU_DEBUG
 	std::cout<<"IMU | IMU loop start called"<<std::endl;
 	#endif
+
+	#ifdef LOGGING_FULL
+	logfile << "IMU | IMU loop start called" << std::endl;
+	#endif
+
 	loopTime = micros();
 	int x = piThreadCreate(imuLoop);
 	if (x != 0)
 	{
 		#ifdef IMU_DEBUG
 		std::cout<<"IMU | Failed to start the IMU loop thread"<<std::endl;
+		#endif
+
+		#ifdef LOGGING_FULL
+		logfile << "IMU | Failed to start the IMU loop thread" << std::endl;
 		#endif
 	}
 	return 0;
