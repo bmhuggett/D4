@@ -1,6 +1,7 @@
 #include "cPwmBoard.h"
 #include <iostream>
 #include <wiringPiI2C.h>
+#include <wiringPi.h>
 #include "utils.h"
 
 //#define PWM_DEBUG //Comment out to disable debug
@@ -18,6 +19,7 @@ cPwmBoard::cPwmBoard()
         logfile << "PWM | Failed to initialise PWM board I2C" << std::endl;
         #endif
     }
+    piLock(0);
     if(wiringPiI2CWriteReg8(pwmFd,MODE1,0x01))          //Wake the device
     {
         #ifdef PWM_DEBUG
@@ -28,6 +30,7 @@ cPwmBoard::cPwmBoard()
         logfile << "PWM | Could not wake device (MODE1 WRITE)" << std::endl;
         #endif
     }
+    piUnlock(0);
 }
 
 int cPwmBoard::setup()
@@ -63,7 +66,7 @@ int cPwmBoard::setPwm(int reg, float duty)
 
         return -1;
     }
-
+    piLock(0);
     if(wiringPiI2CWriteReg8(pwmFd,reg,0)<0)
     {
         #ifdef PWM_DEBUG
@@ -112,6 +115,7 @@ int cPwmBoard::setPwm(int reg, float duty)
 
         return -1;
     }
+    piUnlock(0);
     return 0;
 }
 
@@ -142,6 +146,7 @@ int cPwmBoard::setPwmInv(int reg, float duty)
         return -1;
     }
 
+    piLock(0);
     if(wiringPiI2CWriteReg8(pwmFd,reg,low)<0)
     {
         #ifdef PWM_DEBUG
@@ -190,6 +195,7 @@ int cPwmBoard::setPwmInv(int reg, float duty)
 
         return -1;
     }
+    piUnlock(0);
     return 0;
 }
 
@@ -215,7 +221,7 @@ int cPwmBoard::kill(int reg)
 
 		return -1;
 	}
-
+    piLock(0);
 	if (wiringPiI2CWriteReg8(pwmFd, reg, 0)<0)
 	{
         #ifdef PWM_DEBUG
@@ -264,6 +270,7 @@ int cPwmBoard::kill(int reg)
 
 		return -1;
 	}
+    piUnlock(0);
 	return 0;
 }
 
@@ -280,7 +287,7 @@ int cPwmBoard::setPwmAll(float duty)
     #ifdef LOGGING_FULL
     logfile << "PWM | Writing to " << std::hex<<PWM_ALL_ON << " with value " << std::hex<<high << "|" << std::hex<<low <<std::dec << std::endl;
     #endif
-
+    piLock(0);
     if(wiringPiI2CWriteReg8(pwmFd,PWM_ALL_ON,0)<0)
     {
         #ifdef PWM_DEBUG
@@ -329,11 +336,13 @@ int cPwmBoard::setPwmAll(float duty)
 
         return -1;
     }
+    piUnlock(0);
     return 0;
 }
 
 int cPwmBoard::setDrive(int mode)
 {
+    piLock(0);
     int regval =   wiringPiI2CReadReg8(pwmFd,MODE2);
     if (mode == OPEN_DRAIN)
     {
@@ -372,12 +381,14 @@ int cPwmBoard::setDrive(int mode)
 
         return -1;
     }
+    piUnlock(0);
     return 0;
 
 }
 
 int cPwmBoard::setFreq(float freq)
 {
+    piLock(0);
     if(wiringPiI2CWriteReg8(pwmFd,MODE1,0x11))          //Sleep the device
     {
         #ifdef PWM_DEBUG
@@ -414,5 +425,6 @@ int cPwmBoard::setFreq(float freq)
         logfile << "PWM | Waking device failed (MODE1)" << std::endl;
         #endif
     }
+    piUnlock(0);
     return 0;
 }
