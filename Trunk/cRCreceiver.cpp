@@ -5,6 +5,7 @@
 
 #include <wiringPi.h>
 #include "cRCreceiver.h"
+#include "utils.h"
 #include <iostream>
 
 #define RC_PW_OFFSET 1500
@@ -42,6 +43,10 @@ cRCreceiver::cRCreceiver()
 	#ifdef RC_DEBUG
     std::cout << "RC | Class instantiated on pins " << RC_RHS_LEFTRIGHT_PIN << ", " << RC_RHS_UPDOWN_PIN << ", " << RC_LHS_LEFTRIGHT_PIN << ", " << RC_LHS_UPDOWN_PIN << std::endl;
     #endif
+
+    #ifdef LOGGING_FULL
+    logfile << "RC | Class instantiated on pins " << RC_RHS_LEFTRIGHT_PIN << ", " << RC_RHS_UPDOWN_PIN << ", " << RC_LHS_LEFTRIGHT_PIN << ", " << RC_LHS_UPDOWN_PIN << std::endl;
+    #endif
 }
 
 // Returns x,y velocity vector desired by user as values from -500ish to 500ish.
@@ -61,6 +66,10 @@ std::pair<int, int> cRCreceiver::getInputMovementSpeed(void)
 	std::cout << "RC | Got velocity (x,y): " << velocity_vector.first << "," << velocity_vector.second << std::endl;
 	#endif
 
+    #ifdef LOGGING_FULL
+    logfile << "RC | Got velocity (x,y): " << velocity_vector.first << "," << velocity_vector.second << std::endl;
+    #endif
+
 	return velocity_vector;
 }
 
@@ -74,6 +83,10 @@ int cRCreceiver::getInputRotationSpeed(void)
 	#ifdef RC_DEBUG
 	std::cout << "RC | Got rotation: " << (a+b+c)/3 << std::endl;
 	#endif
+
+    #ifdef LOGGING_FULL
+    logfile << "RC | Got rotation: " << (a+b+c)/3 << std::endl;
+    #endif
 
 	return (a+b+c)/3;
 }

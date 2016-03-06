@@ -4,6 +4,7 @@
  */
 
 #include "cMotorDriver.h"
+#include "utils.h"
 #include <iostream>
 
 //#define MOTOR_DEBUG
@@ -18,7 +19,11 @@ int current_duties[4];
 cMotorDriver::cMotorDriver(cPwmBoard* pPwmBoardInstance)
 {
 	#ifdef MOTOR_DEBUG
-	std::cout<<"MOTOR | Class Instantiated"<<std::endl;
+	std::cout << "MOTOR | Class Instantiated" << std::endl;
+	#endif
+
+	#ifdef LOGGING_FULL
+	logfile << "MOTOR | Class Instantiated" << std::endl;
 	#endif
 
 	for(int i=0;i<4;i++) current_duties[i]=50;
@@ -29,35 +34,34 @@ cMotorDriver::cMotorDriver(cPwmBoard* pPwmBoardInstance)
 	pPwmBoard->setPwmAll(50);
 }
 
-// Choose a motor to set to a speed between -50ish and 50ish (??)
+// Choose a motor to set to a speed between -50ish and 50ish
 void cMotorDriver::setMotorSpeed(MOTORS_T motor, int speed)
 {
 	int current_duty = current_duties[motor];
 	int input_duty;
 
-	// Scale input to give more meaningful output.
+	// Set requested duty cycle according to input speed.
 	if      (speed <-INPUT_DEADZONE_LOW)	input_duty=0;
 	else if (speed <-INPUT_DEADZONE_OFF)	input_duty = 15;
 	else if (speed > INPUT_DEADZONE_LOW)	input_duty =100;
 	else if (speed > INPUT_DEADZONE_OFF)	input_duty = 85;
-	else 					input_duty = 50;
-
-	// Avoid maximing out duty cycle.
-	//if     (input_duty < 0) 	input_duty = 0;
-	//else if(input_duty >100) 	input_duty = 100;
+	else 									input_duty = 50;
 	
-	if (input_duty!=50)
-	{	
-		current_duty = (int)( ((float)input_duty - (float)current_duty)/(float)DUTY_CYCLE_DIVISOR + (float)current_duty  );
-	}
-	else
-	{
-		current_duty=50;
-	}
-	current_duties[motor]=current_duty;
+	// Scale current duty cycle towards the requested duty cycle.
+	if (input_duty!=50)		current_duty = (int)( ((float)input_duty - (float)current_duty)/(float)DUTY_CYCLE_DIVISOR + (float)current_duty  );
+	else					current_duty = 50;
+
+	// Save current duty cycle for later.
+	current_duties[motor] = current_duty;
+
 	#ifdef MOTOR_DEBUG
-	std::cout<<"MOTOR | Requested Duty is "<<current_duty<<std::endl;
+	std::cout << "MOTOR | Requested Duty is " << current_duty << std::endl;
 	#endif
+
+	#ifdef LOGGING_FULL
+	logfile << "MOTOR | Requested Duty is " << current_duty << std::endl;
+	#endif
+
 	switch(motor)
 	{
 	case MOTOR_A: 
@@ -109,6 +113,9 @@ void cMotorDriver::setMotorSpeed(MOTORS_T motor, int speed)
 		}		
 		break;
 	default:
-		std::cerr << "Invalid motor being set!" << std::endl;
+		std::cout << "MOTOR | Invalid motor being set!" << std::endl;
+		#ifdef LOGGING_FULL
+		logfile << "MOTOR | Invalid motor being set!" << std::endl;
+		#endif
 	}
 }
