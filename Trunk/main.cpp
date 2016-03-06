@@ -3,18 +3,32 @@
 #include "cMotorDriver.h"
 #include "cRCreceiver.h"
 #include "cProx.h"
+#include "utils.h"
 #include "tracker.h"
 #include "music.h"
 
-#define ROTATION_DIVISOR     5
+
 #define MOTOR_DRIVER_DIVISOR 10
 
 
 int main()
 {
+    #ifdef LOGGING_FULL
+    if(!logfile.is_open())
+    {
+        std::cout << "Log file failed to open" << std::endl;
+        return -1;
+    }
+    #endif
+
     if(wiringPiSetup()<0)
     {
         std::cout << "WiringPi Setup Failed" << std::endl;
+
+        #ifdef LOGGING_FULL
+        logfile << "WiringPi Setup Failed" << std::endl;
+        #endif
+
         return -1;
     }
 

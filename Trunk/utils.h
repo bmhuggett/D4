@@ -8,6 +8,13 @@
 
 #define M_PI 			3.14159265359
 
+//#define LOGGING_FULL		// Uncomment to log debug info to file
+
+
+#ifdef LOGGING_FULL
+std::ofstream logfile("log.txt");	// Global file to log debug info to
+#endif
+
 int combineRegSigned(int highbyte, int lowbyte);
 
 int combineRegUnsigned(int highbyte, int lowbyte);
