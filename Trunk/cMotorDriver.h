@@ -8,6 +8,9 @@
 
 #include "cPwmBoard.h"
 
+#define INPUT_DEADZONE_OFF 10
+#define INPUT_DEADZONE_LOW 30
+
 typedef enum MOTORS_T
 		{
 		MOTOR_A,

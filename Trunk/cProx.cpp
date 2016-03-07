@@ -1,6 +1,6 @@
 /* prox.cpp
- * Author: Acura Tang
- * Description: interfaing with the proximity sensor
+ * Author: Ben Huggett & Acura Tang
+ * Description: Interfacing with the proximity sensors
  */
 
 //#define PROX_DEBUG  //Comment out to disable debug
@@ -10,83 +10,70 @@
 #include <wiringPi.h>
 #include "utils.h"
 
-//golbal variables
-int proxStartTime = 0;  //the start time
-int proxDistance = 500; //distance in cm
-bool proxReadyFlag = false;
 
-static void proxISR(void)
+bool proxReadyFlag;
+unsigned int start_times[3][PROX_maximum_channels];
+unsigned int PWs_in_us[3][PROX_maximum_channels];
+int looper[PROX_maximum_channels];
+
+static void startStopLeftTimer(void);
+static void startStopRightTimer(void);
+static void startStopFrontTimer(void);
+static void startStopBackTimer(void);
+
+
+cProx::cProx()
 {
-    if (digitalRead( PROX_ECHO_PIN))  //rising edge
-    {
-        proxStartTime = micros();
+    pinMode(PROX_LEFT_TRIGGER_PIN, OUTPUT);
+    pinMode(PROX_RIGHT_TRIGGER_PIN, OUTPUT);
+    pinMode(PROX_FRONT_TRIGGER_PIN, OUTPUT);
+    pinMode(PROX_BACK_TRIGGER_PIN, OUTPUT);
 
-        #ifdef PROX_DEBUG
-        std::cout<<"Prox | Start time:\t"<<proxStartTime<<std::endl;
-        #endif
+    wiringPiISR(PROX_LEFT_ECHO_PIN, INT_EDGE_BOTH, &proxLeftISR);
+    wiringPiISR(PROX_RIGHT_ECHO_PIN, INT_EDGE_BOTH, &proxRightISR);
+    wiringPiISR(PROX_FRONT_ECHO_PIN, INT_EDGE_BOTH, &proxFrontISR);
+    wiringPiISR(PROX_BACK_ECHO_PIN, INT_EDGE_BOTH, &proxBackISR);
 
-        #ifdef LOGGING_FULL
-        logfile << "Prox | Start time:\t" << proxStartTime << std::endl;
-        #endif
-    }
-    else
-    {
-        proxDistance = (micros()-proxStartTime)*0.034;  //falling edge
-        proxReadyFlag = true;
-
-        #ifdef PROX_DEBUG
-        std::cout<<"Prox | Distance:\t"<<proxDistance<<std::endl;
-        #endif
-
-        #ifdef LOGGING_FULL
-        logfile << "Prox | Distance:\t" << proxDistance << std::endl;
-        #endif
-    }
-}
-
-
-cProx::cProx(void)
-{
-    
-    pinMode(PROX_TRIGGER_PIN,OUTPUT);                       //setting the output pin to the proximity sensor
-    if(wiringPiISR(PROX_ECHO_PIN,INT_EDGE_BOTH,&proxISR)<0)
-    {
-        std::cout<<"Prox | ISR Setup Failed"<<std::endl;
-
-        #ifdef LOGGING_FULL
-        logfile << "Prox | ISR Setup Failed" << std::endl;
-        #endif
-    }
-    #ifdef PROX_DEBUG
-    std::cout<<"Prox | Class instantiated on pins "<<PROX_TRIGGER_PIN<<", "<<PROX_ECHO_PIN<<std::endl;
-    #endif
-
-    #ifdef LOGGING_FULL
-    logfile << "Prox | Class instantiated on pins " << PROX_TRIGGER_PIN << ", " << PROX_ECHO_PIN << std::endl;
-    #endif
-}
-
-void cProx::proxTrigger(void)                                //send out pulse to Trigger pin
-{
     proxReadyFlag = false;
-    digitalWrite(PROX_TRIGGER_PIN,1);
-    delayMicroseconds(10);
-    digitalWrite(PROX_TRIGGER_PIN,0);
+
+    for(int i = 0; i < PROX_maximum_channels; i++)
+    {
+        for(int j = 0; j < 3; j++)
+        {
+            PWs_in_us[j][i] = PROX_PW_OFFSET;
+        }
+        looper[i] = 0;
+    }   
 
     #ifdef PROX_DEBUG
-    std::cout<<"Prox | Sent trigger out"<<std::endl;
+    std::cout << "Prox | Proximity sensors initialised." << std::endl;
     #endif
 
     #ifdef LOGGING_FULL
-    logfile << "Prox | Sent trigger out" << std::endl;
+    logfile << "Prox | Proximity sensors initialised." << std::endl;
     #endif
 }
 
-int cProx::getDistance(void)// returns -1 if there is no new data
+// Returns distance in direction of 'sensor', -1 if not ready yet.
+int cProx::getDistance(PROX_SENSORS_T sensor)
 {
     if(proxReadyFlag == true)
     {
-        return proxDistance;
+        int a = PWs_in_us[0][sensor];
+        int b = PWs_in_us[1][sensor];
+        int c = PWs_in_us[2][sensor];
+
+        int x = (a+b+c)/3;
+        
+        #ifdef PROX_DEBUG
+        std::cout << "Prox | Got distance: " << x << std::endl;
+        #endif
+
+        #ifdef LOGGING_FULL
+        logfile << "Prox | Got distance: " << x << std::endl;
+        #endif
+
+        return x;
     }
     else
     {
@@ -100,4 +87,92 @@ int cProx::getDistance(void)// returns -1 if there is no new data
 
         return -1;
     }
+}
+
+// Sends out pulse to trigger pin
+void cProx::proxTrigger(PROX_SENSORS_T sensor)
+{
+    proxReadyFlag = false;
+
+    switch(sensor)
+    {
+        case(PROX_LEFT):
+                    digitalWrite(PROX_LEFT_TRIGGER_PIN,1);
+                    delayMicroseconds(10);
+                    digitalWrite(PROX_LEFT_TRIGGER_PIN,0);
+                    break;
+
+        case(PROX_RIGHT):
+                    digitalWrite(PROX_RIGHT_TRIGGER_PIN,1);
+                    delayMicroseconds(10);
+                    digitalWrite(PROX_RIGHT_TRIGGER_PIN,0);
+                    break;
+                    
+        case(PROX_FRONT):
+                    digitalWrite(PROX_FRONT_TRIGGER_PIN,1);
+                    delayMicroseconds(10);
+                    digitalWrite(PROX_FRONT_TRIGGER_PIN,0);
+                    break;
+                    
+        case(PROX_BACK):
+                    digitalWrite(PROX_BACK_TRIGGER_PIN,1);
+                    delayMicroseconds(10);
+                    digitalWrite(PROX_BACK_TRIGGER_PIN,0);
+                    break;
+
+        default:
+                    std::cout<<"Prox | Invalid sensor triggered!"<<std::endl;
+                    #ifdef LOGGING_FULL
+                    logfile << "Prox | Invalid sensor triggered!" << std::endl;
+                    #endif
+
+    }
+
+
+    #ifdef PROX_DEBUG
+    std::cout<<"Prox | Sent trigger out"<<std::endl;
+    #endif
+
+    #ifdef LOGGING_FULL
+    logfile << "Prox | Sent trigger out" << std::endl;
+    #endif
+}
+
+
+// ISR for any sensor, which is handed the necessary sensor in the specific ISRs below.
+static void startStopGenericTimer(PROX_SENSORS_T sensor)
+{
+    if(digitalRead(sensor*2 + 4) == HIGH)    //Rising edge (converts sensor to ECHO_PIN the lazy way)
+    {
+        start_times[ looper[sensor] ][sensor] = micros();
+    }
+    else    //Falling edge
+    {
+        PWs_in_us[ looper[sensor] ][sensor] = micros() - start_times[ looper[sensor] ][sensor];
+        looper[sensor] = (looper[sensor] + 1)%3;
+    }
+}
+
+// ISR for left sensor.
+static void startStopLeftTimer(void)
+{
+    startStopGenericTimer(PROX_LEFT);
+}
+
+// ISR for right sensor.
+static void startStopRightTimer(void)
+{
+    startStopGenericTimer(PROX_RIGHT);
+}
+
+// ISR for front sensor.
+static void startStopFrontTimer(void)
+{
+    startStopGenericTimer(PROX_FRONT);
+}
+
+// ISR for back sensor.
+static void startStopBackTimer(void)
+{
+    startStopGenericTimer(PROX_BACK);
 }
