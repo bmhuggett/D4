@@ -14,9 +14,9 @@
 #define RC_DEBUG //Comment out to disable debug
 
 
-unsigned int start_times[3][RC_maximum_channels];
-unsigned int PWs_in_us[3][RC_maximum_channels];
-int looper[RC_maximum_channels];
+static unsigned int start_times[3][RC_maximum_channels];
+static unsigned int PWs_in_us[3][RC_maximum_channels];
+static          int looper[RC_maximum_channels];
 
 static void startStopR_LRTimer(void);
 static void startStopR_UDTimer(void);

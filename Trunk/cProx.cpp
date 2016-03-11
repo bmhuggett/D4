@@ -1,4 +1,4 @@
-/* prox.cpp
+/* cProx.cpp
  * Author: Ben Huggett & Acura Tang
  * Description: Interfacing with the proximity sensors
  */
@@ -11,10 +11,10 @@
 #include "utils.h"
 
 
-bool proxReadyFlag;
-unsigned int start_times[3][PROX_maximum_channels];
-unsigned int PWs_in_us[3][PROX_maximum_channels];
-int looper[PROX_maximum_channels];
+static bool proxReadyFlag;
+static unsigned int start_times[3][PROX_maximum_sensors];
+static unsigned int PWs_in_us[3][PROX_maximum_sensors];
+static int looper[PROX_maximum_sensors];
 
 static void startStopLeftTimer(void);
 static void startStopRightTimer(void);
@@ -29,21 +29,20 @@ cProx::cProx()
     pinMode(PROX_FRONT_TRIGGER_PIN, OUTPUT);
     pinMode(PROX_BACK_TRIGGER_PIN, OUTPUT);
 
-    wiringPiISR(PROX_LEFT_ECHO_PIN, INT_EDGE_BOTH, &proxLeftISR);
-    wiringPiISR(PROX_RIGHT_ECHO_PIN, INT_EDGE_BOTH, &proxRightISR);
-    wiringPiISR(PROX_FRONT_ECHO_PIN, INT_EDGE_BOTH, &proxFrontISR);
-    wiringPiISR(PROX_BACK_ECHO_PIN, INT_EDGE_BOTH, &proxBackISR);
+    wiringPiISR(PROX_LEFT_ECHO_PIN, INT_EDGE_BOTH, &startStopLeftTimer);
+    wiringPiISR(PROX_RIGHT_ECHO_PIN, INT_EDGE_BOTH, &startStopRightTimer);
+    wiringPiISR(PROX_FRONT_ECHO_PIN, INT_EDGE_BOTH, &startStopFrontTimer);
+    wiringPiISR(PROX_BACK_ECHO_PIN, INT_EDGE_BOTH, &startStopBackTimer);
 
-    proxReadyFlag = false;
-
-    for(int i = 0; i < PROX_maximum_channels; i++)
+    for(int i = 0; i < PROX_maximum_sensors; i++)
     {
         for(int j = 0; j < 3; j++)
         {
-            PWs_in_us[j][i] = PROX_PW_OFFSET;
+            PWs_in_us[j][i] = 1500;
         }
         looper[i] = 0;
-    }   
+    }
+    proxReadyFlag = true;
 
     #ifdef PROX_DEBUG
     std::cout << "Prox | Proximity sensors initialised." << std::endl;
@@ -142,7 +141,35 @@ void cProx::proxTrigger(PROX_SENSORS_T sensor)
 // ISR for any sensor, which is handed the necessary sensor in the specific ISRs below.
 static void startStopGenericTimer(PROX_SENSORS_T sensor)
 {
-    if(digitalRead(sensor*2 + 4) == HIGH)    //Rising edge (converts sensor to ECHO_PIN the lazy way)
+	int pin;
+
+    switch(sensor)
+    {
+        case(PROX_LEFT):
+        			pin = PROX_LEFT_ECHO_PIN;
+                    break;
+
+        case(PROX_RIGHT):
+        			pin = PROX_RIGHT_ECHO_PIN;
+                    break;
+                    
+        case(PROX_FRONT):
+        			pin = PROX_FRONT_ECHO_PIN;
+                    break;
+                    
+        case(PROX_BACK):
+        			pin = PROX_BACK_ECHO_PIN;
+                    break;
+
+        default:
+                    std::cout<<"Prox | Invalid sensor ISR called!"<<std::endl;
+                    #ifdef LOGGING_FULL
+                    logfile << "Prox | Invalid sensor ISR called!" << std::endl;
+                    #endif
+
+    }
+
+    if(digitalRead(pin) == HIGH)    //Rising edge
     {
         start_times[ looper[sensor] ][sensor] = micros();
     }

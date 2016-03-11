@@ -4,7 +4,7 @@
  * Reference: modifcation of Kyle Hounslow's objectTrackingTutorial.cpp
  * https://raw.githubusercontent.com/kylehounslow/opencv-tuts/master/object-tracking-tut/objectTrackingTut.cpp
  */
-#include <tracker.h>
+#include "tracker.h"
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <stdio.h>
@@ -177,6 +177,7 @@ float radius;
 VideoCapture capture;
 //open capture object at location zero (default location for webcam)
 capture.open(0);
+if(!capture.isOpened())  return 0;
 
 //set height and width of capture frame
 capture.set(CV_CAP_PROP_FRAME_WIDTH,FRAME_WIDTH);
