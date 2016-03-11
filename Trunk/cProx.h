@@ -12,23 +12,23 @@
 #define PROX_RIGHT_ECHO_PIN 6
 #define PROX_RIGHT_TRIGGER_PIN 7
 
-#define PROX_FRONT_ECHO_PIN 8
-#define PROX_FRONT_TRIGGER_PIN 9
+#define PROX_FRONT_ECHO_PIN 10
+#define PROX_FRONT_TRIGGER_PIN 11
 
-#define PROX_BACK_ECHO_PIN 10
-#define PROX_BACK_TRIGGER_PIN 11
+#define PROX_BACK_ECHO_PIN 12
+#define PROX_BACK_TRIGGER_PIN 13
 
 
+#define PROX_TIMEOUT	    1
 #define PROX_STOP_THRESHOLD 20
-
+#define PROX_maximum_sensors 4
 
 typedef enum PROX_SENSORS_T
 				{
 					PROX_LEFT = 0,
 					PROX_RIGHT,
 					PROX_FRONT,
-					PROX_BACK,
-					PROX_maximum_sensors = 4
+					PROX_BACK
 				} PROX_SENSORS;
 
 
@@ -40,6 +40,6 @@ public:
 	void proxTrigger(PROX_SENSORS_T sensor);
 };
 
-int prox_current_distance[PROX_maximum_sensors];
+extern int prox_current_distance[PROX_maximum_sensors];
 
 #endif
